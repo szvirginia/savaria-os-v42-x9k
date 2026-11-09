@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SAVARIA-OS v4.2 // Szalai Imre</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #050811;
+      color: #f1f5f9;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .font-mono-tech {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .vdo-cluster {
+      background: radial-gradient(circle at 50% 0%, #172554 0%, #090d16 75%);
+      border: 1px solid #1e3a8a;
+      box-shadow: inset 0 0 25px rgba(29, 78, 216, 0.35), 0 4px 20px rgba(0, 0, 0, 0.8);
+    }
+
+    .vw-red-glow {
+      color: #fb7185;
+      text-shadow: 0 0 10px rgba(244, 63, 94, 0.75);
+    }
+
+    .vw-blue-glow {
+      color: #60a5fa;
+      text-shadow: 0 0 10px rgba(59, 130, 246, 0.75);
+    }
+
+    .amber-lcd {
+      background: linear-gradient(180deg, #1c1004 0%, #271705 100%);
+      border: 1px solid #92400e;
+      box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.9), 0 0 15px rgba(245, 158, 11, 0.15);
+    }
+
+    .card-panel {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(9, 13, 22, 0.98) 100%);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+    }
+
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.82; transform: scale(0.98); }
+    }
+
+    .animate-pulse-slow {
+      animation: pulse-slow 2.5s infinite ease-in-out;
+    }
+
+    @keyframes float-up {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-45px) scale(1.4); }
+    }
+
+    .heart-particle {
+      position: absolute;
+      pointer-events: none;
+      animation: float-up 1.2s ease-out forwards;
+    }
+
+    .gauge-arc {
+      transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start py-4 px-2 select-none">
+
+  <!-- MOBILE APP CONTAINER -->
+  <div class="w-full max-w-[440px] min-h-[840px] rounded-[36px] border-[8px] border-slate-800 bg-[#070b14] shadow-2xl flex flex-col justify-between overflow-hidden relative">
+
+    <!-- TOP BAR -->
+    <header class="bg-slate-950/90 border-b border-slate-800/80 px-4 py-2.5 flex items-center justify-between text-xs font-mono-tech z-20">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span class="text-slate-300 font-bold tracking-wider">SAVARIA-OS v4.2</span>
+      </div>
+      <div class="text-amber-400 font-semibold">SZALAI IMRE // 42</div>
+      <button onclick="toggleGodMode()" class="text-amber-300 hover:text-white px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-xs font-bold">
+        ⚙️ PÁLYÁK
+      </button>
+    </header>
+
+    <!-- PERSISTENT VDO INSTRUMENT CLUSTER (WITH CURVED ERROR GAUGE) -->
+    <section class="p-3 bg-slate-950/80 border-b border-slate-800/90 z-10">
+      <div class="vdo-cluster rounded-2xl p-3.5 relative overflow-hidden">
+        <div class="flex justify-between items-center text-xs font-mono-tech mb-2">
+          <span class="text-blue-300/90 font-semibold tracking-widest flex items-center gap-1.5">
+            <span>🚐</span> VDO FEDÉLZETI MŰSZERFAL
+          </span>
+          <span id="cluster-status" class="px-2 py-0.5 rounded bg-rose-950/90 border border-rose-700/60 text-rose-300 font-bold">
+            INDÍTÁSGÁTLÓ: AKTÍV
+          </span>
+        </div>
+
+        <!-- 3-Column Instrument Row: Countdown | Curved Error/Test Gauge | Odometer -->
+        <div class="grid grid-cols-12 gap-2 items-center bg-slate-950/75 rounded-xl p-2.5 border border-blue-900/50">
+          <!-- Left: Countdown -->
+          <div class="col-span-4">
+            <div class="text-xs font-mono-tech text-blue-400/80 uppercase">Időmérő</div>
+            <div id="countdown-display" class="text-xl sm:text-2xl font-mono-tech font-extrabold vw-red-glow tracking-wider">
+              42:00
+            </div>
+          </div>
+
+          <!-- Center: Curved SVG Gauge for Mistakes ("Tesztek / Melléfogások") -->
+          <div class="col-span-4 flex flex-col items-center justify-center border-x border-blue-900/40 px-1">
+            <div class="relative w-20 h-11 flex items-end justify-center">
+              <svg viewBox="0 0 100 56" class="w-full h-full overflow-visible">
+                <!-- Background Track Arc -->
+                <path d="M 10 48 A 40 40 0 0 1 90 48" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round" />
+                <!-- Dynamic Value Arc (total length ~125.6) -->
+                <path id="error-gauge-arc" class="gauge-arc" d="M 10 48 A 40 40 0 0 1 90 48" fill="none" stroke="#f59e0b" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="125.6" />
+              </svg>
+              <div class="absolute bottom-0 text-center leading-none">
+                <span id="error-count-display" class="text-sm font-mono-tech font-extrabold text-amber-400">0</span>
+              </div>
+            </div>
+            <div class="text-xs font-mono-tech text-blue-300/75 mt-0.5 tracking-tight">HIBASZÁMLÁLÓ</div>
+          </div>
+
+          <!-- Right: Odometer -->
+          <div class="col-span-4 text-right">
+            <div class="text-xs font-mono-tech text-blue-400/80 uppercase">Évjárat</div>
+            <div class="text-lg sm:text-xl font-mono-tech font-extrabold vw-blue-glow tracking-widest">
+              00<span class="text-amber-400">42</span> <span class="text-xs font-normal text-blue-300">ÉV</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PIN Code Digits Bar -->
+        <div class="mt-2.5 pt-2 border-t border-blue-900/40 flex items-center justify-between">
+          <span class="text-xs font-mono-tech text-blue-300/80">GYÚJTÁSKÓD (6 JEGYŰ):</span>
+          <div class="flex gap-1.5">
+            <span id="shard-badge-1" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-500 font-mono-tech text-xs font-bold">?</span>
+            <span id="shard-badge-2" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-500 font-mono-tech text-xs font-bold">?</span>
+            <span id="shard-badge-3" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-500 font-mono-tech text-xs font-bold">?</span>
+            <span id="shard-badge-4" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-500 font-mono-tech text-xs font-bold">?</span>
+            <span id="shard-badge-5" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-500 font-mono-tech text-xs font-bold">?</span>
+            <span id="shard-badge-6" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-500 font-mono-tech text-xs font-bold">?</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- GYORS PÁLYAVÁLASZTÓ (TESZTELÉSHEZ) -->
+      <div id="god-mode-panel" class="hidden mt-2 p-3 rounded-xl bg-slate-900 border border-amber-500/50 text-xs space-y-2">
+        <div class="flex justify-between items-center text-amber-300 font-bold">
+          <span>🛠️ Pályák gyors átugrása (Teszt mód):</span>
+          <button onclick="toggleGodMode()" class="text-slate-400 hover:text-white">✕</button>
+        </div>
+        <div class="grid grid-cols-4 gap-1.5 font-mono-tech">
+          <button onclick="goToChapter(0)" class="p-1.5 rounded bg-slate-800 hover:bg-slate-700 text-center">0. Nyitó</button>
+          <button onclick="goToChapter(1)" class="p-1.5 rounded bg-slate-800 hover:bg-slate-700 text-center">1. Műhely</button>
+          <button onclick="goToChapter(2)" class="p-1.5 rounded bg-slate-800 hover:bg-slate-700 text-center">2. Kert</button>
+          <button onclick="goToChapter(3)" class="p-1.5 rounded bg-slate-800 hover:bg-slate-700 text-center">3. Kamion</button>
+          <button onclick="goToChapter(4)" class="p-1.5 rounded bg-slate-800 hover:bg-slate-700 text-center">4. Motor</button>
+          <button onclick="goToChapter(5)" class="p-1.5 rounded bg-slate-800 hover:bg-slate-700 text-center">5. Bogrács</button>
+          <button onclick="goToChapter(6)" class="p-1.5 rounded bg-slate-800 hover:bg-slate-700 text-center">6. Rádió</button>
+          <button onclick="goToChapter(7)" class="p-1.5 rounded bg-amber-600/30 border border-amber-500 text-amber-200 text-center">7. Finálé</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 overflow-y-auto p-4 space-y-4">
+
+      <!-- ===================================================================
+           0. FEJEZET: NYITÓKÉPERNYŐ
+           =================================================================== -->
+      <div id="chapter-0" class="space-y-4">
+        <div class="amber-lcd rounded-2xl p-5 text-center space-y-3 relative overflow-hidden">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-mono-tech">
+            <span>📡</span> RENDSZERINDÍTÁS // SZOMBATHELY
+          </div>
+          <div class="text-6xl font-mono-tech font-extrabold text-amber-400 tracking-tight py-1 animate-pulse-slow">
+            42
+          </div>
+          <h1 class="text-lg font-bold text-white">
+            Szia Apa!
+          </h1>
+          <p class="text-xs text-amber-100/90 leading-relaxed">
+            Ma egy kicsit másfajta rendszert kell beindítanod! Lekódoltam egy teljes virtuális túrát a saját életedből – a szombathelyi garázsodtól és a nagy kertedtől kezdve az osztrák autópályán át egészen a CFMOTO-s szerpentinekig és a bográcsig.
+          </p>
+        </div>
+
+        <div class="card-panel rounded-2xl p-4 space-y-3 text-xs text-slate-300">
+          <div class="font-bold text-sm text-blue-400 flex items-center gap-2">
+            <span>🕵️‍♂️</span> Mire számíts útközben?
+          </div>
+          <ul class="space-y-2 leading-relaxed">
+            <li class="flex gap-2">
+              <span class="text-amber-400 font-bold">•</span>
+              <span>A visszaszámláló <strong>42:00 percről</strong> indul, amikor ráadod a gyújtást.</span>
+            </li>
+            <li class="flex gap-2">
+              <span class="text-amber-400 font-bold">•</span>
+              <span><strong>6 állomás</strong> és <strong>13 fejtörő</strong> vár rád. Fent középen egy kis íves műszer számolja a melléfogásokat – nincs büntetés érte, de a végén kiderül, mennyire tesztelted le a saját életedet! (Ha valahol elakadnál, a 3. próbálkozás után a rendszer ad egy kis szakmai súgást.)</span>
+            </li>
+            <li class="flex gap-2">
+              <span class="text-amber-400 font-bold">•</span>
+              <span>Minden állomás végén megszerzel egy számjegyet a fenti 6-jegyű gyújtáskódhoz (<code class="text-amber-300">? ? ? ? ? ?</code>).</span>
+            </li>
+          </ul>
+        </div>
+
+        <button onclick="startEscapeRoom()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-extrabold text-sm tracking-wide uppercase shadow-lg shadow-amber-500/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2">
+          <span>🔑</span> GYÚJTÁS RÁADÁSA – INDULJON A VISSZASZÁMLÁLÁS!
+        </button>
+      </div>
+
+
+      <!-- ===================================================================
+           1. ÁLLOMÁS: A GARÁZS ÉS A SZERELŐMŰHELY (3 FEJTÖRŐ)
+           =================================================================== -->
+      <div id="chapter-1" class="hidden space-y-4">
+        <div class="card-panel rounded-2xl p-4 border-l-4 border-l-blue-500">
+          <div class="flex justify-between items-center text-xs font-mono-tech text-blue-400 mb-1">
+            <span>1. ÁLLOMÁS // SZERELŐMŰHELY</span>
+            <span id="ch1-step-badge">1 / 3 RÉSZ</span>
+          </div>
+          <h2 class="text-base font-bold text-white">Garázskód, Biztosítéktábla & Vezérlés 🔧</h2>
+          <p class="text-xs text-slate-400 mt-1">
+            A műhelyajtó zárva van, a szürke T4-esben pedig kiment a főbiztosíték. Lássuk, mennyire vagy formában!
+          </p>
+        </div>
+
+        <!-- 1/A: GARÁZSKÓD MATEMATIKA -->
+        <div id="ch1-part1" class="card-panel rounded-2xl p-4 space-y-3.5">
+          <div class="text-xs font-bold text-amber-400 uppercase tracking-wider">
+            🔐 1/A. A Műhelyajtó 3-jegyű Számzára
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            A riasztó 3 számjegyet kér. Számold ki őket a saját járműparkod alapján, és tekerd be a kódot:
+          </p>
+
+          <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-xs space-y-2 text-slate-300">
+            <div><strong class="text-blue-400">1. számjegy:</strong> Hány darab <strong>szürke</strong> színű Volkswagen áll a flottádban?</div>
+            <div><strong class="text-blue-400">2. számjegy:</strong> Hány hengeres a klasszikus <strong>VW T4 2.5 TDI</strong> motor?</div>
+            <div><strong class="text-blue-400">3. számjegy:</strong> Vond ki a két Passatod összes kerekének a számából (pótkerekek nélkül) a CFMOTO motorod kerekeinek a számát!</div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5 pt-1">
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-center">
+              <div class="text-xs text-slate-500 mb-1">1. JEGY</div>
+              <div class="flex items-center justify-between">
+                <button onclick="changePin1(0, -1)" class="w-7 h-7 rounded bg-slate-800 text-white font-bold">-</button>
+                <span id="pin1-0" class="text-xl font-mono-tech font-extrabold text-amber-400">0</span>
+                <button onclick="changePin1(0, 1)" class="w-7 h-7 rounded bg-slate-800 text-white font-bold">+</button>
+              </div>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-center">
+              <div class="text-xs text-slate-500 mb-1">2. JEGY</div>
+              <div class="flex items-center justify-between">
+                <button onclick="changePin1(1, -1)" class="w-7 h-7 rounded bg-slate-800 text-white font-bold">-</button>
+                <span id="pin1-1" class="text-xl font-mono-tech font-extrabold text-amber-400">0</span>
+                <button onclick="changePin1(1, 1)" class="w-7 h-7 rounded bg-slate-800 text-white font-bold">+</button>
+              </div>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-center">
+              <div class="text-xs text-slate-500 mb-1">3. JEGY</div>
+              <div class="flex items-center justify-between">
+                <button onclick="changePin1(2, -1)" class="w-7 h-7 rounded bg-slate-800 text-white font-bold">-</button>
+                <span id="pin1-2" class="text-xl font-mono-tech font-extrabold text-amber-400">0</span>
+                <button onclick="changePin1(2, 1)" class="w-7 h-7 rounded bg-slate-800 text-white font-bold">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="ch1-p1-msg" class="hidden text-xs p-3 rounded-xl font-mono-tech text-center leading-relaxed"></div>
+
+          <button id="ch1-p1-check-btn" onclick="verifyCh1Part1()" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider transition-all">
+            MŰHELYAJTÓ NYITÁSA
+          </button>
+          <button id="ch1-p1-next-btn" onclick="advanceCh1ToPart2()" class="hidden w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all">
+            BELÉPÉS A MŰHELYBE →
+          </button>
+        </div>
+
+        <!-- 1/B: BIZTOSÍTÉKTÁBLA (42 AMPER KOMBINATORIKA) -->
+        <div id="ch1-part2" class="hidden card-panel rounded-2xl p-4 space-y-3.5">
+          <div class="text-xs font-bold text-amber-400 uppercase tracking-wider">
+            ⚡ 1/B. A T4-es Biztosítéktáblája
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Bent vagy a műhelyben! A busz főreléje <strong>pontosan 42 Ampert</strong> kér, és a táblán <strong>pontosan 4 darab biztosítékot</strong> kell aktívra kapcsolnod. Keresd meg azt a négyest, ami kiadja a 42-t!
+          </p>
+
+          <div class="amber-lcd rounded-xl p-3 flex justify-between items-center font-mono-tech">
+            <div>
+              <div class="text-xs text-amber-300/70">BEKAPCSOLVA:</div>
+              <div id="fuse-count" class="text-lg font-bold text-amber-300">0 / 4 db</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-amber-300/70">ÖSSZ-ÁRAMERŐSSÉG:</div>
+              <div id="fuse-sum" class="text-2xl font-extrabold text-amber-400">0 A</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-4 gap-2" id="fuse-grid"></div>
+
+          <div id="ch1-p2-msg" class="hidden text-xs p-3 rounded-xl font-mono-tech text-center leading-relaxed"></div>
+
+          <button id="ch1-p2-check-btn" onclick="verifyCh1Part2()" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all">
+            FŐRELÉ TESZTELÉSE
+          </button>
+          <button id="ch1-p2-next-btn" onclick="advanceCh1ToPart3()" class="hidden w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all">
+            TOVÁBB A SZERSZÁMFALHOZ →
+          </button>
+        </div>
+
+        <!-- 1/C: SZERSZÁMFAL & VEZÉRLÉS FEJTÖRŐ -->
+        <div id="ch1-part3" class="hidden card-panel rounded-2xl p-4 space-y-3.5">
+          <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+            🔩 1/C. Az Eltűnt Villáskulcs & A Vezérlés
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Először válaszolj minden autószerelő örök kérdésére, majd rakd sorba a vezérléscsere 5 lépését (1-től 5-ig)!
+          </p>
+
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5 text-xs">
+            <label class="block font-bold text-amber-300">
+              Melyik méretű dugókulcs vagy villáskulcs az, ami a szerelőműhelyek íratlan törvényei szerint mindig elsőként tűnik el a motortérben?
+            </label>
+            <select id="socket-select" class="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-700 text-white">
+              <option value="">-- Válassz méretet --</option>
+              <option value="8">A 8-as kulcs</option>
+              <option value="10">A 10-es kulcs</option>
+              <option value="14">A 14-es kulcs</option>
+              <option value="19">A 19-es kulcs</option>
+            </select>
+          </div>
+
+          <div class="text-xs text-slate-400 font-semibold pt-1">
+            Kattints a műveletekre a helyes szerelési sorrendben:
+          </div>
+          <div id="mech-steps-container" class="space-y-2"></div>
+
+          <div class="flex justify-between items-center pt-1">
+            <button onclick="resetMechSteps()" class="text-xs text-slate-400 hover:text-white underline">
+              🔄 Sorrend nullázása
+            </button>
+            <span id="mech-progress" class="text-xs font-mono-tech text-emerald-400">0 / 5 lépés</span>
+          </div>
+
+          <div id="ch1-p3-msg" class="hidden text-xs p-3 rounded-xl font-mono-tech text-center leading-relaxed"></div>
+
+          <button id="ch1-p3-next-btn" onclick="goToChapter(2)" class="hidden w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all">
+            IRÁNY A 2. ÁLLOMÁS: A NAGY KERT ÉS BELLA →
+          </button>
+        </div>
+      </div>
+
+
+      <!-- ===================================================================
+           2. ÁLLOMÁS: A NAGY KERT ÉS BELLA
+           =================================================================== -->
+      <div id="chapter-2" class="hidden space-y-4">
+        <div class="card-panel rounded-2xl p-4 border-l-4 border-l-emerald-500">
+          <div class="flex justify-between items-center text-xs font-mono-tech text-emerald-400 mb-1">
+            <span>2. ÁLLOMÁS // A KERT & BELLA</span>
+            <span id="ch2-step-badge">1 / 2 RÉSZ</span>
+          </div>
+          <h2 class="text-base font-bold text-white">Kerti Logika & Bella Kincskeresése 🌿🐾</h2>
+          <p class="text-xs text-slate-400 mt-1">
+            A műhely kész, de a T4-es slusszkulcsát Bella elcipelte a nagy kertedbe!
+          </p>
+        </div>
+
+        <!-- 2/A: VALÓDI DEDUKTÍV KERTÉSZETI REJTVÉNY -->
+        <div id="ch2-part1" class="card-panel rounded-2xl p-4 space-y-3.5">
+          <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+            🌱 2/A. A 4 Ágyás Rejtvénye
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            A kertedben egymás mellett 4 ágyás sorakozik: <strong>1. (Bal szél), 2. (Bal-közép), 3. (Jobb-közép), 4. (Jobb szél)</strong>. Mindegyikbe más kerül: <em>Erős paprika, Paradicsom, Bazsalikom, Fokhagyma</em>. Következtesd ki a sorrendet a 4 nyom alapján:
+          </p>
+
+          <div class="p-3 rounded-xl bg-emerald-950/40 border border-emerald-800/60 text-xs space-y-2 text-emerald-100 leading-relaxed">
+            <div>🔎 <strong>1. nyom:</strong> A <strong>Fokhagyma</strong> valamelyik szélső (1-es vagy 4-es) ágyásban van, hogy távol tartsa a vakondokat.</div>
+            <div>🔎 <strong>2. nyom:</strong> A <strong>Paradicsom</strong> és a <strong>Bazsalikom</strong> jó szomszédok, így közvetlenül egymás mellett vannak, és egyikük sincs a szélen!</div>
+            <div>🔎 <strong>3. nyom:</strong> Az <strong>Erős paprika</strong> közvetlenül a <strong>Paradicsom</strong> bal oldalán lévő ágyásban nő.</div>
+            <div>🔎 <strong>4. nyom:</strong> A <strong>Bazsalikom</strong> közvetlenül a <strong>Fokhagyma</strong> mellett illatozik.</div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 text-xs">
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+              <div class="font-bold text-amber-300 mb-1">1. Ágyás (Bal szél)</div>
+              <select id="garden-slot-1" class="w-full p-2 rounded bg-slate-950 border border-slate-700 text-white">
+                <option value="">-- Válassz --</option>
+                <option value="paprika">🌶️ Erős paprika</option>
+                <option value="paradicsom">🍅 Paradicsom</option>
+                <option value="bazsalikom">🌿 Bazsalikom</option>
+                <option value="fokhagyma">🧄 Fokhagyma</option>
+              </select>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+              <div class="font-bold text-amber-300 mb-1">2. Ágyás (Bal-közép)</div>
+              <select id="garden-slot-2" class="w-full p-2 rounded bg-slate-950 border border-slate-700 text-white">
+                <option value="">-- Válassz --</option>
+                <option value="paprika">🌶️ Erős paprika</option>
+                <option value="paradicsom">🍅 Paradicsom</option>
+                <option value="bazsalikom">🌿 Bazsalikom</option>
+                <option value="fokhagyma">🧄 Fokhagyma</option>
+              </select>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+              <div class="font-bold text-amber-300 mb-1">3. Ágyás (Jobb-közép)</div>
+              <select id="garden-slot-3" class="w-full p-2 rounded bg-slate-950 border border-slate-700 text-white">
+                <option value="">-- Válassz --</option>
+                <option value="paprika">🌶️ Erős paprika</option>
+                <option value="paradicsom">🍅 Paradicsom</option>
+                <option value="bazsalikom">🌿 Bazsalikom</option>
+                <option value="fokhagyma">🧄 Fokhagyma</option>
+              </select>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+              <div class="font-bold text-amber-300 mb-1">4. Ágyás (Jobb szél)</div>
+              <select id="garden-slot-4" class="w-full p-2 rounded bg-slate-950 border border-slate-700 text-white">
+                <option value="">-- Válassz --</option>
+                <option value="paprika">🌶️ Erős paprika</option>
+                <option value="paradicsom">🍅 Paradicsom</option>
+                <option value="bazsalikom">🌿 Bazsalikom</option>
+                <option value="fokhagyma">🧄 Fokhagyma</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="ch2-p1-msg" class="hidden text-xs p-3 rounded-xl font-mono-tech text-center leading-relaxed"></div>
+
+          <button id="ch2-p1-check-btn" onclick="verifyCh2Part1()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider transition-all">
+            ÁGYÁSOK ELLENŐRZÉSE
+          </button>
+          <button id="ch2-p1-next-btn" onclick="advanceCh2ToPart2()" class="hidden w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all">
+            TOVÁBB BELLA KÜLDETÉSÉHEZ →
+          </button>
+        </div>
+
+        <!-- 2/B: BELLA ÉS A 4x4-ES KERTI SZIMAT-RADAR -->
+        <div id="ch2-part2" class="hidden card-panel rounded-2xl p-4 space-y-4">
+          <div class="text-xs font-bold text-amber-400 uppercase tracking-wider">
+            🐾 2/B. Hol a slusszkulcs? – Keresés Bellával
+          </div>
+
+          <div class="bg-gradient-to-b from-amber-950/40 to-slate-900 border border-amber-500/40 rounded-2xl p-4 text-center relative overflow-hidden" id="bella-card">
+            <div class="w-24 h-24 mx-auto mb-2 relative">
+              <svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-lg">
+                <circle cx="60" cy="62" r="44" fill="#78350f" />
+                <ellipse cx="22" cy="58" rx="14" ry="26" transform="rotate(-15 22 58)" fill="#451a03" />
+                <ellipse cx="98" cy="58" rx="14" ry="26" transform="rotate(15 98 58)" fill="#451a03" />
+                <circle cx="60" cy="60" r="38" fill="#b45309" />
+                <path d="M53 24 Q60 20 67 24 L65 65 Q60 70 55 65 Z" fill="#fef3c7" />
+                <ellipse cx="60" cy="72" rx="22" ry="18" fill="#fef3c7" />
+                <circle cx="44" cy="52" r="5.5" fill="#1c1917" />
+                <circle cx="42.5" cy="50" r="2" fill="#ffffff" />
+                <path d="M70 52 Q76 48 82 52" stroke="#451a03" stroke-width="3.5" stroke-linecap="round" fill="none" />
+                <ellipse cx="60" cy="66" rx="9" ry="6.5" fill="#1c1917" />
+                <path d="M48 75 Q60 84 72 75" stroke="#451a03" stroke-width="3" stroke-linecap="round" fill="none" />
+                <path d="M55 78 Q60 92 65 78 Z" fill="#fb7185" />
+                <rect x="38" y="95" width="44" height="7" rx="3.5" fill="#dc2626" />
+                <circle cx="60" cy="102" r="5" fill="#fbbf24" />
+              </svg>
+            </div>
+
+            <h3 class="text-sm font-extrabold text-amber-300">Bella, a birtok főfelügyelője</h3>
+            <p class="text-xs text-amber-100/90 mt-1 leading-relaxed">
+              A kaukázusi–bernáthegyi bundás óriás már vár a kertedben! Tudja ám, hova rejtette a kulcsot, de a vesztegetés kötelező: előbb jár neki a <strong>3 buksi-simogatás</strong>!
+            </p>
+
+            <div class="mt-3 flex items-center justify-center">
+              <button onclick="petBella()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md active:scale-95 transition-all flex items-center gap-1.5">
+                <span>🤚❤️</span> Buksi-simi Bellának (<span id="bella-pet-count">0</span>/3)
+              </button>
+            </div>
+          </div>
+
+          <!-- 4x4-es Kerti Kincskereső -->
+          <div class="space-y-2.5">
+            <div class="text-xs text-slate-300 leading-relaxed">
+              <strong>Szimat-játék:</strong> Keresd meg a 16 kerti pont között a kulcsot! Amikor ráböksz egy helyre, Bella vakkantással jelzi, <strong>hány lépésnyire (vízszintesen + függőlegesen)</strong> van onnan a rejtekhely! (Az első néhány szimatolás ingyen van, csak a 4. melléfogástól számol a hibamérő!)
+            </div>
+
+            <div id="bella-bark-box" class="p-3 rounded-xl bg-slate-950 border border-amber-500/40 text-xs font-mono-tech text-amber-300 text-center leading-relaxed">
+              🐶 Bella: „Előbb a 3 simogatás, aztán indulhat a szimatolás!”
+            </div>
+
+            <div class="grid grid-cols-4 gap-1.5" id="garden-treasure-grid"></div>
+
+            <button id="ch2-p2-next-btn" onclick="goToChapter(3)" class="hidden w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all mt-2">
+              MEGVAN A KULCS! IRÁNY A 3. ÁLLOMÁS (AUSZTRIA) →
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ===================================================================
+           3. ÁLLOMÁS: OSZTRÁK KAMIONOS FUVAR (2 FEJTÖRŐ)
+           =================================================================== -->
+      <div id="chapter-3" class="hidden space-y-4">
+        <div class="card-panel rounded-2xl p-4 border-l-4 border-l-amber-500">
+          <div class="flex justify-between items-center text-xs font-mono-tech text-amber-400 mb-1">
+            <span>3. ÁLLOMÁS // AUSZTRIA FUVAR</span>
+            <span id="ch3-step-badge">1 / 2 RÉSZ</span>
+          </div>
+          <h2 class="text-base font-bold text-white">Raktér-Mérlegelés & Tachográf Matek 🚛🇦🇹</h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Irány Ausztria! Az ASFINAG kontrollkapu előtt azonban nem hibázhat a tengelysúly és a vezetési időd sem.
+          </p>
+        </div>
+
+        <!-- 3/A: RAKTÉR EGYENSÚLYOZÁS -->
+        <div id="ch3-part1" class="card-panel rounded-2xl p-4 space-y-4">
+          <div class="text-xs font-bold text-amber-400 uppercase tracking-wider">
+            ⚖️ 3/A. Pótkocsi Tengelyterhelés (13t – 13t)
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            A rámpán 6 különböző osztrák raklap áll. Válogasd be őket az <strong>Első</strong> és a <strong>Hátsó</strong> raktér-szekcióba úgy, hogy:
+            <br/>• Az <strong>Első szekció</strong> összsúlya pontosan <strong>13 tonna</strong> legyen,
+            <br/>• A <strong>Hátsó szekció</strong> összsúlya is pontosan <strong>13 tonna</strong> legyen!
+            <br/><span class="text-slate-400">(Nem kell minden raklapot felraknod, ami nem kell, hagyd „Lent”!)</span>
+          </p>
+
+          <div class="grid grid-cols-2 gap-3 amber-lcd rounded-xl p-3 font-mono-tech">
+            <div>
+              <div class="text-xs text-amber-300/70">ELSŐ SZEKCIÓ (CÉL: 13t)</div>
+              <div id="truck-front-weight" class="text-2xl font-extrabold text-amber-400">0 t</div>
+            </div>
+            <div class="text-right border-l border-amber-800/60 pl-3">
+              <div class="text-xs text-amber-300/70">HÁTSÓ SZEKCIÓ (CÉL: 13t)</div>
+              <div id="truck-rear-weight" class="text-2xl font-extrabold text-amber-400">0 t</div>
+            </div>
+          </div>
+
+          <div class="space-y-2" id="pallets-container"></div>
+
+          <div id="ch3-p1-msg" class="hidden text-xs p-3 rounded-xl font-mono-tech text-center leading-relaxed"></div>
+
+          <button id="ch3-p1-check-btn" onclick="verifyCh3Part1()" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all">
+            RÁMPA LEZÁRÁSA & MÉRLEGELÉS
+          </button>
+          <button id="ch3-p1-next-btn" onclick="advanceCh3ToPart2()" class="hidden w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all">
+            TOVÁBB A TACHOGRÁFHOZ →
+          </button>
+        </div>
+
+        <!-- 3/B: TACHOGRÁF ÉS A9 AUTÓPÁLYA SZÁMÍTÁS -->
+        <div id="ch3-part2" class="hidden card-panel rounded-2xl p-4 space-y-3.5">
+          <div class="text-xs font-bold text-amber-400 uppercase tracking-wider">
+            ⏱️ 3/B. Tachográf & Alpok-alagút Számítás
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            A tengelyterhelés tökéletes! Most számold ki a menetidődet, hogy zöldet kapj a kontrollnál:
+          </p>
+
+          <div class="space-y-3 text-xs">
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+              <label class="block font-bold text-amber-300">
+                1. Reggel 06:00-kor indulsz. Vezetsz egybefüggően 4,5 órát, majd kiveszed a kötelező 45 perces pihenőt, és utána még vezetsz 2 órát és 15 percet. Hány óra lesz pontosan, amikor megállsz?
+              </label>
+              <select id="tacho-time" class="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-700 text-white font-mono-tech">
+                <option value="">-- Válassz érkezési időpontot --</option>
+                <option value="12:45">12:45</option>
+                <option value="13:15">13:15</option>
+                <option value="13:30">13:30</option>
+                <option value="14:00">14:00</option>
+              </select>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+              <label class="block font-bold text-amber-300">
+                2. Melyik híres, közel 10 km hosszú alagúton haladsz át az osztrák A9-es (Pyhrn) autópályán Stájerországban Graznál?
+              </label>
+              <select id="tacho-tunnel" class="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-700 text-white">
+                <option value="">-- Válassz alagutat --</option>
+                <option value="plabutsch">Plabutsch-alagút</option>
+                <option value="montblanc">Mont Blanc-alagút</option>
+                <option value="gotthard">Gotthárd-alagút</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="ch3-p2-msg" class="hidden text-xs p-3 rounded-xl font-mono-tech text-center leading-relaxed"></div>
+
+          <button id="ch3-p2-check-btn" onclick="verifyCh3Part2()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider transition-all">
+            FUVARLEVÉL LEIGAZOLÁSA
+          </button>
+          <button id="ch3-p2-next-btn" onclick="goToChapter(4)" class="hidden w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all">
+            IRÁNY A 4. ÁLLOMÁS: CFMOTO & SZERPENTINEK →
+          </button>
+        </div>
+      </div>
+
+
+      <!-- ===================================================================
+           4. ÁLLOMÁS: CFMOTO KARBANTARTÁS & SZERPENTIN-TÚRA (2 FEJTÖRŐ)
+           =================================================================== -->
+      <div id="chapter-4" class="hidden space-y-4">
+        <div class="card-panel rounded-2xl p-4 border-l-4 border-l-cyan-500">
+          <div class="flex justify-between items-center text-xs font-mono-tech text-cyan-400 mb-1">
+            <span>4. ÁLLOMÁS // CFMOTO & SZERPENTIN</span>
+            <span id="ch4-step-badge">1 / 2 RÉSZ</span>
+          </div>
+          <h2 class="text-base font-bold text-white">CFMOTO Spa & Hágó-Matematika 🏍️⛰️</h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Kamion leparkolva, elő a CFMOTO-val! Előbb egy profi mosás, aztán irány a szlovák, szlovén és horvát kanyarok!
+          </p>
+        </div>
+
+        <!-- 4/A: 5 LÉPÉSES MOTORTISZTÍTÁS -->
+        <div id="ch4-part1" class="card-panel rounded-2xl p-4 space-y-3.5">
+          <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider">
+            🧽 4/A. CFMOTO Túra Előtti Nagymosás (5 lépés)
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Kattints az 5 ápolási műveletre <strong>pontosan a helyes szakmai sorrendben</strong>!
+          </p>
+
+          <div class="bg-slate-950 border border-cyan-900/60 rounded-xl p-3 space-y-1.5">
+            <div class="flex justify-between text-xs font-mono-tech">
+              <span class="text-cyan-300">CFMOTO ÁLLAPOT:</span>
+              <span id="moto-clean-pct" class="text-cyan-400 font-bold">0%</span>
+            </div>
+            <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+              <div id="moto-clean-bar" class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-0 transition-all duration-300"></div>
+            </div>
+          </div>
+
+          <div class="space-y-2" id="wash-steps-container"></div>
+
+          <div class="flex justify-between items-center pt-1">
+            <button onclick="resetWashSteps()" class="text-xs text-slate-400 hover:text-white underline">
+              🔄 Mosás újrakezdése
+            </button>
+          </div>
+
+          <div id="ch4-p1-msg" class="hidden text-xs p-3 rounded-xl font-mono-tech text-center leading-relaxed"></div>
+
+          <button id="ch4-p1-next-btn" onclick="advanceCh4ToPart2()" class="hidden w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all">
+            FELÜLÉS A MOTORRA: IRÁNY A SZERPENTIN →
+          </button>
+        </div>
+
+        <!-- 4/B: SZERPENTIN ÉS MARIBOR REJTVÉNY -->
+        <div id="ch4-part2" class="hidden card-panel rounded-2xl p-4 space-y-3.5">
+          <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+            🧭 4/B. Szerpentin-Navigáció: Szlovákia – Maribor – Adria
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+              <label class="block font-bold text-emerald-300">
+                1. Melyik folyó partján fekszik Maribor (ahol a Kislányoddal ketten is jártatok), és ahol a világ legöregebb szőlőtőkéje is található?
+              </label>
+              <select id="tour-q1" class="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-700 text-white">
+                <option value="">-- Válassz folyót --</option>
+                <option value="drava">A Dráva partján</option>
+                <option value="szava">A Száva partján</option>
+                <option value="mura">A Mura partján</option>
+              </select>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+              <label class="block font-bold text-emerald-300">
+                2. A legendás horvát tengerparti szerpentin, a Jadranska Magistrala hivatalos útszámozása „D-valahány”. Melyik ez az útszám?
+              </label>
+              <select id="tour-q2" class="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-700 text-white">
+                <option value="">-- Válassz útszámot --</option>
+                <option value="D1">D1</option>
+                <option value="D8">D8</option>
+                <option value="D12">D12</option>
+              </select>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+              <label class="block font-bold text-emerald-300">
+                3. Számítás: A szlovákiai Šturec-hágón 14 hajtűkanyart veszel be, a szlovén Vršič-hágó egyik oldalán 24-et, majd még 4-et a horvát tengerparti szerpentinen. Hány hajtűkanyar ez összesen?
+              </label>
+              <input id="tour-q3" type="number" placeholder="Írd be az összeget..." class="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-700 text-amber-400 font-mono-tech font-bold text-sm" />
+            </div>
+          </div>
+
+          <div id="ch4-p2-msg" class="hidden text-xs p-3 rounded-xl font-mono-tech text-center leading-relaxed"></div>
+
+          <button id="ch4-p2-check-btn" onclick="verifyCh4Part2()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider transition-all">
+            TÚRAÚTVONAL RÖGZÍTÉSE
+          </button>
+          <button id="ch4-p2-next-btn" onclick="goToChapter(5)" class="hidden w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all">
+            IRÁNY AZ 5. ÁLLOMÁS: T4 KEMPING & BOGRÁCS →
+          </button>
+        </div>
+      </div>
+
+
+      <!-- ===================================================================
+           5. ÁLLOMÁS: T4 KEMPING – PARÁZS-FIZIKA, BOGRÁCSGULYÁS & MARIBORI GRILL (3 FEJTÖRŐ)
+           =================================================================== -->
+      <div id="chapter-5" class="hidden space-y-4">
+        <div class="card-panel rounded-2xl p-4 border-l-4 border-l-orange-500">
+          <div class="flex justify-between items-center text-xs font-mono-tech text-orange-400 mb-1">
+            <span>5. ÁLLOMÁS // KEMPING & BOGRÁCS</span>
+            <span id="ch5-step-badge">1 / 3 RÉSZ</span>
+          </div>
+          <h2 class="text-base font-bold text-white">Tábortűz-Fizika, Bográcsgulyás & Čevapčiči 🏕️🔥</h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Leparkoltad a T4-est a táborhelyen! De mielőtt bármi a bográcsba vagy a grillre kerülne, be kell lőnöd a tökéletes parazsat!
+          </p>
+        </div>
+
+        <!-- 5/A: TÁBORTŰZ ÉS HŐFOK SZABÁLYOZÁS -->
+        <div id="ch5-part1" class="card-panel rounded-2xl p-4 space-y-3.5">
+          <div class="text-xs font-bold text-orange-400 uppercase tracking-wider">
+            🔥 5/A. A Parázs-Mester Hőfokszabályzója
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Az alap parázs jelenleg <strong>90 °C</strong>-os. A tökéletes bográcsozáshoz és grillezéshez pontosan <strong>210 °C</strong>-ra kell beállítanod a tüzet az alábbi fahasábok és az állvány magasságának kombinálásával!
+          </p>
+
+          <div class="amber-lcd rounded-xl p-3 flex justify-between items-center font-mono-tech">
+            <div>
+              <div class="text-xs text-amber-300/70">CÉL HŐMÉRSÉKLET:</div>
+              <div class="text-lg font-bold text-emerald-400">210 °C</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-amber-300/70">BOGRÁCS HŐFOK MOST:</div>
+              <div id="fire-temp-display" class="text-2xl font-extrabold text-amber-400">90 °C</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2" id="fire-controls-grid"></div>
+
+          <div id="ch5-p1-msg" class="hidden text-xs p-3 rounded-xl font-mono-tech text-center leading-relaxed"></div>
+
+          <button id="ch5-p1-check-btn" onclick="verifyCh5Part1()" class="w-full py-3 rounded-xl bg-orange-500 hover:bg-orange-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all">
+            PARÁZS RÖGZÍTÉSE
+          </button>
+          <button id="ch5-p1-next-btn" onclick="advanceCh5ToPart2()" class="hidden w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all">
+            KEZDŐDHET A BOGRÁCSGULYÁS →
+          </button>
+        </div>
+
+        <!-- 5/B: BOGRÁCSGULYÁS SORREND -->
+        <div id="ch5-part2" class="hidden card-panel rounded-2xl p-4 space-y-3.5">
+          <div class="text-xs font-bold text-orange-400 uppercase tracking-wider">
+            🍲 5/B. A Bográcsgulyás 5 Szent Lépése
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            A parázs 210 fokon izzik! Kattints a műveletekre <strong>pontosan abban a sorrendben (1-től 5-ig)</strong>, ahogy egy igazi bográcsmester készíti a gulyást!
+          </p>
+
+          <div id="bogracs-steps-container" class="space-y-2"></div>
+
+          <div class="flex justify-between items-center pt-1">
+            <button onclick="resetBogracsSteps()" class="text-xs text-slate-400 hover:text-white underline">
+              🔄 Sorrend nullázása
+            </button>
+            <span id="bogracs-progress" class="text-xs font-mono-tech text-orange-400">0 / 5 lépés</span>
+          </div>
+
+          <div id="ch5-p2-msg" class="hidden text-xs p-3 rounded-xl font-mono-tech text-center leading-relaxed"></div>
+
+          <button id="ch5-p2-next-btn" onclick="advanceCh5ToPart3()" class="hidden w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all">
+            TOVÁBB A MARIBORI ČEVAPČIČIHEZ & ŠOPSKA SALÁTÁHOZ →
+          </button>
+        </div>
+
+        <!-- 5/C: ČEVAPČIČI & ŠOPSKA SALÁTA KAKUKKTOJÁS -->
+        <div id="ch5-part3" class="hidden card-panel rounded-2xl p-4 space-y-3.5">
+          <div class="text-xs font-bold text-amber-400 uppercase tracking-wider">
+            🥩🥗 5/C. Maribori Ízek: Čevapčiči & Šopska Saláta
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Az asztalon 8 alapanyag sorakozik. Kattints <strong>pontosan arra az 5-re</strong>, amelyek a valódi <strong>Šopska salátához</strong> és a klasszikus <strong>Čevapčiči tálhoz</strong> kellenek (a 3 kakukktojást hagyd kikapcsolva)!
+          </p>
+
+          <div class="grid grid-cols-2 gap-2" id="balkan-ingredients-grid"></div>
+
+          <div id="ch5-p3-msg" class="hidden text-xs p-3 rounded-xl font-mono-tech text-center leading-relaxed"></div>
+
+          <button id="ch5-p3-check-btn" onclick="verifyCh5Part3()" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all">
+            TÁLALÁS & VACSORAKÓD MENTÉSE
+          </button>
+          <button id="ch5-p3-next-btn" onclick="goToChapter(6)" class="hidden w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all">
+            IRÁNY A 6. ÁLLOMÁS: A T4 AUTÓRÁDIÓJA →
+          </button>
+        </div>
+      </div>
+
+
+      <!-- ===================================================================
+           6. ÁLLOMÁS: BLAUPUNKT RÁDIÓ – FREKVENCIA & DALSZÖVEG
+           =================================================================== -->
+      <div id="chapter-6" class="hidden space-y-4">
+        <div class="card-panel rounded-2xl p-4 border-l-4 border-l-purple-500">
+          <div class="flex justify-between items-center text-xs font-mono-tech text-purple-400 mb-1">
+            <span>6. ÁLLOMÁS // T4 BLAUPUNKT AUDIO</span>
+            <span id="ch6-step-badge">UTOLSÓ ÁLLOMÁS</span>
+          </div>
+          <h2 class="text-base font-bold text-white">Kowalsky meg a Vega & Parno Graszt 📻🎸🎻</h2>
+          <p class="text-xs text-slate-400 mt-1">
+            A tábortűz mellett már csak a zenét kell belőnöd a T4-es rádióján!
+          </p>
+        </div>
+
+        <div class="card-panel rounded-2xl p-4 space-y-4">
+          <!-- Interaktív FM Hangoló -->
+          <div class="amber-lcd rounded-xl p-4 space-y-3">
+            <div class="flex justify-between text-xs font-mono-tech text-amber-400/80">
+              <span>BLAUPUNKT // FM TUNER</span>
+              <span id="radio-lock-state">KERESÉS...</span>
+            </div>
+            <div id="radio-freq-label" class="text-3xl font-mono-tech font-extrabold text-amber-400 text-center">
+              95.0 FM
+            </div>
+            <div id="radio-rds-box" class="text-xs font-mono-tech text-amber-200 text-center bg-black/50 py-2 px-2 rounded border border-amber-800/50">
+              📻 [KСССШШ... Tekerd a csúszkát a tiszta adáshoz!]
+            </div>
+            <input id="fm-slider" type="range" min="880" max="1080" step="2" value="950" oninput="onFmSlide(this.value)" class="w-full accent-amber-500 cursor-pointer" />
+            <div class="flex justify-between text-xs font-mono-tech text-amber-500/70">
+              <span>88.0 FM</span>
+              <span>Hangold: 98.4 FM-re!</span>
+              <span>108.0 FM</span>
+            </div>
+          </div>
+
+          <!-- Dalszöveg és Zenekar Fejtörők -->
+          <div class="space-y-3 text-xs">
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+              <label class="block font-bold text-amber-300">
+                1. Kowalsky meg a Vega: Melyik szó hiányzik a híres refrénből?
+                <br/><span class="italic text-slate-300 font-normal">„Amilyen hülye vagy, én úgy _______!”</span>
+              </label>
+              <select id="music-q1" class="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-700 text-white">
+                <option value="">-- Válassz --</option>
+                <option value="elvisellek">elvisellek</option>
+                <option value="szeretlek">szeretlek</option>
+                <option value="ismerlek">ismerlek</option>
+              </select>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+              <label class="block font-bold text-amber-300">
+                2. Parno Graszt: Mit jelent magyarul a zenekar neve („Parno Graszt”) lovári nyelven, ami a logójukban is szerepel?
+              </label>
+              <select id="music-q2" class="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-700 text-white">
+                <option value="">-- Válassz jelentést --</option>
+                <option value="feherlo">Fehér ló</option>
+                <option value="feketerigo">Fekete rigó</option>
+                <option value="aranykocsi">Arany szekér</option>
+              </select>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+              <label class="block font-bold text-amber-300">
+                3. Melyik Parno Graszt sláger címe folytatódik így: „Már nem _______!”
+              </label>
+              <select id="music-q3" class="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-700 text-white">
+                <option value="">-- Válassz --</option>
+                <option value="szedulok">szédülök</option>
+                <option value="faradok">fáradok</option>
+                <option value="busulok">búsulok</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="ch6-msg" class="hidden text-xs p-3 rounded-xl font-mono-tech text-center leading-relaxed"></div>
+
+          <button id="ch6-check-btn" onclick="verifyChapter6()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider transition-all">
+            🎶 RÁDIÓ ÉS 6. SZÁMJEGY FELOLDÁSA
+          </button>
+          <button id="ch6-next-btn" onclick="goToChapter(7)" class="hidden w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all">
+            TOVÁBB A VÉGSŐ GYÚJTÁSKAPCSOLÓHOZ →
+          </button>
+        </div>
+      </div>
+
+
+      <!-- ===================================================================
+           7. FEJEZET: VÉGSŐ GYÚJTÁSKAPCSOLÓ & FINÁLÉ
+           =================================================================== -->
+      <div id="chapter-7" class="hidden space-y-4">
+        <!-- 7/A: VÉGSŐ KÓD SZÁMÍTÁS -->
+        <div id="finale-lock" class="card-panel rounded-2xl p-5 space-y-4 text-center border-2 border-amber-500/60">
+          <div class="text-xs font-mono-tech text-emerald-400 font-bold">
+            MIND A 6 ÁLLOMÁS TELJESÍTVE! // MASTER LOCK
+          </div>
+          <h2 class="text-lg font-extrabold text-white">
+            A Végső Gyújtáskapcsoló
+          </h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            A 6 állomáson megszerzett gyújtáskódod számjegyei:
+            <br/><span class="font-mono-tech text-lg text-amber-300 font-extrabold tracking-widest">4 – 8 – 6 – 9 – 7 – 8</span>
+            <br/>Add össze ezt a 6 számjegyet (<code class="text-amber-200">4 + 8 + 6 + 9 + 7 + 8</code>), és írd be az eredményt az indításhoz!
+          </p>
+
+          <input id="master-code-input" type="number" placeholder="??" class="w-36 mx-auto block text-center py-3 rounded-xl bg-slate-950 border-2 border-amber-500 text-amber-400 font-mono-tech text-3xl font-extrabold" />
+
+          <div id="finale-lock-msg" class="hidden text-xs font-mono-tech text-rose-400"></div>
+
+          <button onclick="unlockFinale()" class="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-extrabold text-sm uppercase tracking-wider shadow-lg shadow-emerald-500/25 transition-all">
+            🚀 RENDSZER INDÍTÁSA!
+          </button>
+        </div>
+
+        <!-- 7/B: ÜNNEPI ÜZENET A KISLÁNYODTÓL + ÉLET-TESZT ÉRTÉKELÉS + LETÖLTHETŐ CERTIFICATE -->
+        <div id="finale-celebration" class="hidden space-y-4">
+          <div class="amber-lcd rounded-2xl p-5 text-center space-y-3 border-2 border-amber-400 relative overflow-hidden">
+            <div class="text-3xl">🎂🚐🏍️🚛🐾🍲</div>
+            <div class="inline-block px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-xs font-mono-tech font-bold">
+              GYÚJTÁS AKTÍV // 42. SZÜLETÉSNAP
+            </div>
+            <h1 class="text-2xl font-extrabold text-white">
+              Isten éltessen sokáig a 42. születésnapodon, Apa! ❤️
+            </h1>
+            <p class="text-xs text-amber-200 font-mono-tech">
+              SZALAI IMRE // HIVATALOS MESTERFOKOZAT
+            </p>
+          </div>
+
+          <!-- Metaforikus Élet-Teszt Diagnosztika Kártya -->
+          <div class="card-panel rounded-2xl p-4 space-y-2 border border-amber-500/40">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono-tech text-amber-400 font-bold">📊 ÉLET-TESZTELÉSI DIAGNOSZTIKA</span>
+              <span id="final-error-badge" class="text-xs font-mono-tech px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">0 TESZT</span>
+            </div>
+            <p id="final-error-metaphor" class="text-xs text-slate-300 leading-relaxed"></p>
+          </div>
+
+          <!-- Személyes levél a Kislányodtól (E/2-ben) -->
+          <div class="card-panel rounded-2xl p-5 space-y-3.5 border border-rose-500/40 relative">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+              <span class="text-xs font-mono-tech text-rose-400 font-bold">💌 ÜZENET A KISLÁNYODTÓL:</span>
+              <span class="text-xs font-mono-tech text-slate-400">boldog_szulinapot_42.txt</span>
+            </div>
+
+            <div class="text-xs sm:text-sm text-slate-200 space-y-3 leading-relaxed">
+              <p><strong>Drága Apa!</strong></p>
+              <p>
+                Sikeresen végigvitted a küldetést! Mivel én az IT világában mozgok, idén egy olyan meglepetéssel akartam készülni Neked, amit saját kezűleg, kifejezetten a Te életedből és a kedvenc dolgaidból raktam össze.
+              </p>
+              <p>
+                Láthatod, mennyire figyelek Rád és mennyire ismerlek: benne van a szombathelyi bázisod, a nagy kerted és Bella, a műhely és a bütykölések, a szürke T4-es kempingezések, a két Passatod, az osztrák kamionos kilométereid, a CFMOTO-s szerpentinek, a bográcsgulyások, a közös maribori čevapčičizésünk és šopska salátázásunk emléke, meg persze a Kowalsky meg a Vega és a Parno Graszt!
+              </p>
+              <p>
+                Kívánok Neked még rengeteg balesetmentes kilométert, napsütéses kanyarokat, füstölgő bográcsokat, jó egészséget és nagyon-nagyon boldog 42. születésnapot!
+              </p>
+              <p class="text-right font-bold text-amber-400 pt-2 text-sm">
+                Nagyon szeretlek!<br/>
+                — A Kislányod ❤️
+              </p>
+            </div>
+          </div>
+
+          <!-- Hivatalos Oklevél / Certificate Előnézet & Letöltés -->
+          <div class="vdo-cluster rounded-2xl p-4 space-y-3 border border-blue-500/50">
+            <div class="flex justify-between items-center border-b border-blue-900/60 pb-2">
+              <span class="text-xs font-mono-tech text-blue-300 font-bold">🏆 HIVATALOS MESTERLEVÉL (CERTIFICATE)</span>
+              <span class="text-xs font-mono-tech text-amber-400">#SZALAI-42</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="p-2 rounded bg-slate-950/70 border border-blue-900/40">
+                <div class="text-slate-400">Név:</div>
+                <div class="font-bold text-white">Szalai Imre (Apa)</div>
+              </div>
+              <div class="p-2 rounded bg-slate-950/70 border border-blue-900/40">
+                <div class="text-slate-400">Bázis:</div>
+                <div class="font-bold text-white">Szombathely</div>
+              </div>
+              <div class="p-2 rounded bg-slate-950/70 border border-blue-900/40">
+                <div class="text-slate-400">Flotta:</div>
+                <div class="font-bold text-amber-300">T4, 2 Passat, CFMOTO</div>
+              </div>
+              <div class="p-2 rounded bg-slate-950/70 border border-blue-900/40">
+                <div class="text-slate-400">Kerti főfelügyelő:</div>
+                <div class="font-bold text-rose-300">Bella 🐾</div>
+              </div>
+            </div>
+            <div class="flex justify-between items-center text-xs font-mono-tech text-emerald-400 pt-1 px-1">
+              <span>✓ IDŐ: <strong id="final-time-spent">--:--</strong></span>
+              <span>✓ TESZTEK: <strong id="final-errors-cert">0</strong></span>
+            </div>
+
+            <!-- Letölthető Certificate Generáló Gomb -->
+            <button onclick="downloadCertificate()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2">
+              <span>📥</span> HIVATALOS MESTERLEVÉL LETÖLTÉSE (PNG KÉP)
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 border-t border-slate-800/90 px-4 py-2.5 flex justify-between items-center text-xs font-mono-tech text-slate-400">
+      <span id="footer-stage-name">ÁLLOMÁS: 0 / 6</span>
+      <span class="text-slate-500">KÉSZÍTETTE: A KISLÁNYOD ❤️</span>
+    </footer>
+
+  </div>
+
+  <!-- Hidden High-Res Canvas for Certificate Download -->
+  <canvas id="cert-canvas" width="1200" height="850" class="hidden"></canvas>
+
+  <script>
+    // Global State
+    let currentChapter = 0;
+    let remainingSeconds = 42 * 60;
+    let timerHandle = null;
+    let totalMistakes = 0;
+    const shardDigits = [4, 8, 6, 9, 7, 8];
+
+    // Per-subtask attempt counters (so hints only appear on 3rd failed attempt!)
+    const attempts = {
+      ch1p1: 0,
+      ch1p2: 0,
+      ch1p3: 0,
+      ch2p1: 0,
+      ch2p2: 0,
+      ch3p1: 0,
+      ch3p2: 0,
+      ch4p1: 0,
+      ch4p2: 0,
+      ch5p1: 0,
+      ch5p2: 0,
+      ch5p3: 0,
+      ch6: 0
+    };
+
+    // Chapter 1 state
+    let pin1 = [0, 0, 0];
+    const fuseValues = [4, 6, 7, 9, 11, 13, 15, 17];
+    let selectedFuses = new Set();
+
+    const mechStepsData = [
+      { id: 1, text: "Motorburkolat lebontása és a főtengely felső holtpontra (OT) állítása" },
+      { id: 2, text: "Feszítőgörgő lazítása és a régi vezérműszíj levétele" },
+      { id: 3, text: "Új vízpumpa, görgő és az új vezérműszíj felhelyezése, feszítése" },
+      { id: 4, text: "Főtengely kétszeri körbeforgatása kézzel (ütközés- és jel-ellenőrzés)" },
+      { id: 5, text: "Burkolat vissza, gyújtás ráadása és az első próba-indítás" }
+    ];
+    let mechShuffled = [];
+    let mechCurrentStep = 1;
+
+    // Chapter 2 state
+    let bellaPetCount = 0;
+    const secretKeySpot = 10; // Öreg diófa
+    const gardenSpots16 = [
+      "🍒 Cseresznyefa", "🌷 Tulipánok", "🪨 Sziklakert", "🪵 Farakás",
+      "🌿 Levendula", "🍎 Almafa", "🍓 Epres ágyás", "🌻 Napraforgó",
+      "🌲 Fenyőfa", "🥀 Rózsabokor", "🌳 Öreg diófa", "🍇 Szőlőlugas",
+      "💧 Kerti csap", "🪑 Kerti pad", "🏡 Kerti tároló", "🐕 Bella kuckója"
+    ];
+
+    // Chapter 3 state
+    const palletsData = [
+      { id: 0, city: "Graz (Acéltekercs)", weight: 8, pos: "none" },
+      { id: 1, city: "Linz (Gépelemek)", weight: 5, pos: "none" },
+      { id: 2, city: "Salzburg (Fenyőfa)", weight: 7, pos: "none" },
+      { id: 3, city: "Innsbruck (Alumínium)", weight: 6, pos: "none" },
+      { id: 4, city: "Wels (Építőanyag)", weight: 9, pos: "none" },
+      { id: 5, city: "Klagenfurt (Tartályok)", weight: 4, pos: "none" }
+    ];
+
+    // Chapter 4 state
+    const washStepsData = [
+      { id: 1, text: "Megvárni, amíg a motorblokk és a kipufogó lehűl" },
+      { id: 2, text: "Bogároldó és aktív tisztítóhab felvitele az idomokra" },
+      { id: 3, text: "Kíméletes leöblítés vízzel (a csapágyakra és elektronikára vigyázva)" },
+      { id: 4, text: "Szárazra törlés mikroszálas kendővel" },
+      { id: 5, text: "Láncspray felvitele a tiszta, száraz láncra" }
+    ];
+    let washShuffled = [];
+    let washCurrentStep = 1;
+
+    // Chapter 5 state
+    const fireMods = [
+      { id: 0, name: "🪵 Száraz akácfa hasábok", delta: 65, active: false },
+      { id: 1, name: "🌳 Kemény tölgyfa parázs", delta: 75, active: false },
+      { id: 2, name: "💨 Bográcsállvány lejjebb engedése", delta: 35, active: false },
+      { id: 3, name: "🌧️ Vizes fenyőágak", delta: -40, active: false },
+      { id: 4, name: "⬆️ Állvány legfelső állásba", delta: -20, active: false },
+      { id: 5, name: "🔥 Finom szellőztetés", delta: 20, active: false }
+    ];
+
+    const bogracsData = [
+      { id: 1, text: "Szalonna/zsír kiolvasztása és a vöröshagyma üvegesre dinsztelése" },
+      { id: 2, text: "Bogrács félrehúzása a tűzről és a fűszerpaprika elkeverése" },
+      { id: 3, text: "A felkockázott marhalábszár lepirítása, majd felöntése kevés vízzel" },
+      { id: 4, text: "Fokhagyma, kömény, só, bors és a zöldségek (répa, fehérrépa) hozzáadása" },
+      { id: 5, text: "Krumpli és a csipetke befőzése a gulyásba" }
+    ];
+    let bogracsShuffled = [];
+    let bogracsCurrentStep = 1;
+
+    const balkanIngredients = [
+      { id: 0, name: "🧀 Reszelt sós fehér juhsajt (Sirene)", valid: true, selected: false },
+      { id: 1, name: "🫓 Friss lepénykenyér (Lepinja)", valid: true, selected: false },
+      { id: 2, name: "🍍 Konzerv ananászkarika", valid: false, selected: false },
+      { id: 3, name: "🌶️ Házi ajvár & aprított hagyma", valid: true, selected: false },
+      { id: 4, name: "🥒 Uborka, paradicsom és sült paprika", valid: true, selected: false },
+      { id: 5, name: "🍫 Csokoládészósz", valid: false, selected: false },
+      { id: 6, name: "🥩 Fűszeres darált húsrudak a grillről", valid: true, selected: false },
+      { id: 7, name: "🐟 Rántott halrudacska", valid: false, selected: false }
+    ];
+
+    // Chapter 6 state
+    let currentFm = 950;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initFuseGrid();
+      initMechSteps();
+      initBellaGardenGrid();
+      initTruckPallets();
+      initWashSteps();
+      initFireControls();
+      initBogracsSteps();
+      initBalkanGrid();
+    });
+
+    function toggleGodMode() {
+      document.getElementById('god-mode-panel').classList.toggle('hidden');
+    }
+
+    function recordMistake() {
+      totalMistakes++;
+      document.getElementById('error-count-display').textContent = totalMistakes;
+      // Update curved arc (max visual scale around 20 mistakes)
+      const maxVisual = 20;
+      const ratio = Math.min(totalMistakes / maxVisual, 1);
+      const maxDash = 125.6;
+      const offset = maxDash - (ratio * maxDash);
+      const arc = document.getElementById('error-gauge-arc');
+      arc.style.strokeDashoffset = offset;
+      if (totalMistakes > 10) {
+        arc.setAttribute('stroke', '#fb7185');
+      }
+    }
+
+    function startTimer() {
+      if (timerHandle) return;
+      timerHandle = setInterval(() => {
+        if (remainingSeconds > 0) {
+          remainingSeconds--;
+          const mins = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+          const secs = String(remainingSeconds % 60).padStart(2, '0');
+          document.getElementById('countdown-display').textContent = `${mins}:${secs}`;
+        }
+      }, 1000);
+    }
+
+    function startEscapeRoom() {
+      startTimer();
+      goToChapter(1);
+    }
+
+    function awardShard(index) {
+      const badge = document.getElementById(`shard-badge-${index + 1}`);
+      badge.textContent = shardDigits[index];
+      badge.className = "px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500 text-emerald-300 font-mono-tech text-xs font-extrabold shadow-sm";
+    }
+
+    function goToChapter(num) {
+      for (let i = 0; i <= 7; i++) {
+        const el = document.getElementById(`chapter-${i}`);
+        if (el) el.classList.add('hidden');
+      }
+      const target = document.getElementById(`chapter-${num}`);
+      if (target) target.classList.remove('hidden');
+      currentChapter = num;
+
+      const footer = document.getElementById('footer-stage-name');
+      const status = document.getElementById('cluster-status');
+
+      if (num === 0) {
+        footer.textContent = "ÁLLOMÁS: NYITÓKÉPERNYŐ";
+        status.textContent = "INDÍTÁSGÁTLÓ: AKTÍV";
+      } else if (num <= 6) {
+        footer.textContent = `ÁLLOMÁS: ${num} / 6`;
+        status.textContent = `${num}. ÁLLOMÁS FOLYAMATBAN`;
+        status.className = "px-2 py-0.5 rounded bg-amber-950/90 border border-amber-600/60 text-amber-300 font-bold";
+      } else {
+        footer.textContent = "ÁLLOMÁS: FINÁLÉ // 42";
+        status.textContent = "KÓDOK MEGSZEREZVE!";
+        status.className = "px-2 py-0.5 rounded bg-emerald-950/90 border border-emerald-500/60 text-emerald-300 font-bold";
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showFeedback(elId, text, isSuccess) {
+      const el = document.getElementById(elId);
+      el.classList.remove('hidden');
+      el.innerHTML = text;
+      el.className = isSuccess
+        ? "text-xs p-3 rounded-xl font-mono-tech text-center leading-relaxed bg-emerald-950/90 border border-emerald-500 text-emerald-200"
+        : "text-xs p-3 rounded-xl font-mono-tech text-center leading-relaxed bg-rose-950/90 border border-rose-600 text-rose-200";
+    }
+
+    // =========================================================================
+    // 1. ÁLLOMÁS (MŰHELY) - Fokozatos súgás csak a 3. hibánál!
+    // =========================================================================
+    function changePin1(idx, delta) {
+      pin1[idx] = (pin1[idx] + delta + 10) % 10;
+      document.getElementById(`pin1-${idx}`).textContent = pin1[idx];
+    }
+
+    function verifyCh1Part1() {
+      if (pin1[0] === 2 && pin1[1] === 5 && pin1[2] === 6) {
+        showFeedback('ch1-p1-msg', '✅ Kód elfogadva (2–5–6)! A riasztó kikapcsolt, a műhelyajtó zárja kattant!', true);
+        document.getElementById('ch1-p1-check-btn').classList.add('hidden');
+        document.getElementById('ch1-p1-next-btn').classList.remove('hidden');
+      } else {
+        attempts.ch1p1++;
+        recordMistake();
+        if (attempts.ch1p1 === 1) {
+          showFeedback('ch1-p1-msg', '❌ A riasztó sípol: ez a kombináció još nem nyitja az ajtót! Gondold át újra a 3 számjegyet!', false);
+        } else if (attempts.ch1p1 === 2) {
+          let wrongCount = (pin1[0] !== 2 ? 1 : 0) + (pin1[1] !== 5 ? 1 : 0) + (pin1[2] !== 6 ? 1 : 0);
+          showFeedback('ch1-p1-msg', `❌ Még mindig zárva! Jelenleg ${wrongCount} számjegy nem stimmel a háromból.`, false);
+        } else {
+          let hints = [];
+          if (pin1[0] !== 2) hints.push("1. jegy: a T4 buszod és az egyik Passatod szürke (a másik Passat sötétkék)");
+          if (pin1[1] !== 5) hints.push("2. jegy: a 2.5 TDI soros 5 hengeres");
+          if (pin1[2] !== 6) hints.push("3. jegy: 8 autokerék mínusz 2 motorkerék");
+          showFeedback('ch1-p1-msg', `💡 Műhely-súgás (3. próba után):<br/>${hints.join('<br/>')}`, false);
+        }
+      }
+    }
+
+    function advanceCh1ToPart2() {
+      document.getElementById('ch1-part1').classList.add('hidden');
+      document.getElementById('ch1-part2').classList.remove('hidden');
+      document.getElementById('ch1-step-badge').textContent = "2 / 3 RÉSZ";
+    }
+
+    function initFuseGrid() {
+      const grid = document.getElementById('fuse-grid');
+      grid.innerHTML = '';
+      fuseValues.forEach((amp, idx) => {
+        const btn = document.createElement('button');
+        btn.id = `fuse-btn-${idx}`;
+        btn.onclick = () => toggleFuse(idx);
+        btn.className = "p-3 rounded-xl bg-slate-900 border border-slate-700 text-center font-mono-tech transition-all";
+        btn.innerHTML = `<div class="text-xs text-slate-400">F${idx + 1}</div><div class="text-base font-extrabold text-amber-400">${amp}A</div>`;
+        grid.appendChild(btn);
+      });
+    }
+
+    function toggleFuse(idx) {
+      if (selectedFuses.has(idx)) {
+        selectedFuses.delete(idx);
+      } else {
+        if (selectedFuses.size >= 4) {
+          showFeedback('ch1-p2-msg', '⚠️ Egyszerre csak 4 biztosíték lehet bekapcsolva! Kapcsolj le egyet előbb.', false);
+          return;
+        }
+        selectedFuses.add(idx);
+      }
+      updateFuseUI();
+    }
+
+    function updateFuseUI() {
+      let sum = 0;
+      fuseValues.forEach((amp, idx) => {
+        const btn = document.getElementById(`fuse-btn-${idx}`);
+        if (selectedFuses.has(idx)) {
+          sum += amp;
+          btn.className = "p-3 rounded-xl bg-amber-500/20 border-2 border-amber-400 text-center font-mono-tech transition-all scale-105";
+        } else {
+          btn.className = "p-3 rounded-xl bg-slate-900 border border-slate-700 text-center font-mono-tech transition-all";
+        }
+      });
+      document.getElementById('fuse-count').textContent = `${selectedFuses.size} / 4 db`;
+      document.getElementById('fuse-sum').textContent = `${sum} A`;
+    }
+
+    function verifyCh1Part2() {
+      let sum = 0;
+      selectedFuses.forEach(idx => sum += fuseValues[idx]);
+      if (selectedFuses.size === 4 && sum === 42) {
+        showFeedback('ch1-p2-msg', '✅ Pontosan 42 Amper! A T4 főreléje behúzott, a műszerfal életre kelt!', true);
+        document.getElementById('ch1-p2-check-btn').classList.add('hidden');
+        document.getElementById('ch1-p2-next-btn').classList.remove('hidden');
+      } else {
+        attempts.ch1p2++;
+        recordMistake();
+        if (attempts.ch1p2 < 3) {
+          showFeedback('ch1-p2-msg', `❌ A főrelé még nem húz be! Jelenleg ${selectedFuses.size} db biztosíték van bent (${sum} A). Keress 4 olyat, ami 42-t ad ki!`, false);
+        } else {
+          showFeedback('ch1-p2-msg', `💡 Műhely-súgás: Próbáld például a 4A és 6A biztosítékokat (az együtt 10A), és keress melléjük még kettőt, ami 32A-t ad ki!`, false);
+        }
+      }
+    }
+
+    function advanceCh1ToPart3() {
+      document.getElementById('ch1-part2').classList.add('hidden');
+      document.getElementById('ch1-part3').classList.remove('hidden');
+      document.getElementById('ch1-step-badge').textContent = "3 / 3 RÉSZ";
+    }
+
+    function initMechSteps() {
+      mechShuffled = [...mechStepsData].sort(() => Math.random() - 0.5);
+      mechCurrentStep = 1;
+      renderMechSteps();
+    }
+
+    function renderMechSteps() {
+      const container = document.getElementById('mech-steps-container');
+      container.innerHTML = '';
+      mechShuffled.forEach(step => {
+        const done = step.id < mechCurrentStep;
+        const btn = document.createElement('button');
+        btn.disabled = done;
+        btn.onclick = () => selectMechStep(step.id);
+        btn.className = done
+          ? "w-full p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/60 text-left text-xs text-emerald-200 flex items-center justify-between"
+          : "w-full p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left text-xs text-slate-200 flex items-center justify-between transition-all";
+        btn.innerHTML = `<span>${step.text}</span><span class="font-mono-tech font-bold ml-2">${done ? '✓ #' + step.id : ''}</span>`;
+        container.appendChild(btn);
+      });
+      document.getElementById('mech-progress').textContent = `${mechCurrentStep - 1} / 5 lépés`;
+    }
+
+    function selectMechStep(id) {
+      const sock = document.getElementById('socket-select').value;
+      if (sock !== '10') {
+        attempts.ch1p3++;
+        recordMistake();
+        if (attempts.ch1p3 < 3) {
+          showFeedback('ch1-p3-msg', '❌ Előbb válaszd ki fent a helyes kulcsméretet, ami mindig eltűnik a motortérben!', false);
+        } else {
+          showFeedback('ch1-p3-msg', '💡 Súgás: Minden szerelő rémálma az örökké eltűnő 10-es kulcs – válaszd azt fent!', false);
+        }
+        return;
+      }
+      if (id === mechCurrentStep) {
+        mechCurrentStep++;
+        renderMechSteps();
+        if (mechCurrentStep > 5) {
+          awardShard(0);
+          showFeedback('ch1-p3-msg', '🎉 1. ÁLLOMÁS TELJESÍTVE! A vezérlés a helyén, a TDI motor pöccre indul! Megszerezted az 1. gyújtáskód-számjegyet (4)!', true);
+          document.getElementById('ch1-p3-next-btn').classList.remove('hidden');
+        } else {
+          showFeedback('ch1-p3-msg', `👍 ${mechCurrentStep - 1}. lépés kész! Mi következik most?`, true);
+        }
+      } else {
+        attempts.ch1p3++;
+        recordMistake();
+        if (attempts.ch1p3 < 3) {
+          showFeedback('ch1-p3-msg', '⚠️ Ez a lépés még korai lesz! Gondold végig a szerelés sorrendjét!', false);
+        } else {
+          showFeedback('ch1-p3-msg', '💡 Súgás: 1. Burkolat le és OT-jel -> 2. Régi szíj le -> 3. Új vízpumpa és szíj fel -> 4. Kézi körbeforgatás -> 5. Próba-indítás!', false);
+        }
+      }
+    }
+
+    function resetMechSteps() {
+      mechCurrentStep = 1;
+      renderMechSteps();
+    }
+
+    // =========================================================================
+    // 2. ÁLLOMÁS (KERT ÉS BELLA)
+    // =========================================================================
+    function verifyCh2Part1() {
+      const s1 = document.getElementById('garden-slot-1').value;
+      const s2 = document.getElementById('garden-slot-2').value;
+      const s3 = document.getElementById('garden-slot-3').value;
+      const s4 = document.getElementById('garden-slot-4').value;
+
+      if (s1 === 'paprika' && s2 === 'paradicsom' && s3 === 'bazsalikom' && s4 === 'fokhagyma') {
+        showFeedback('ch2-p1-msg', '✅ Hibátlan kertészeti logika! Minden növény a helyére került. Most keressük meg Bellával az elásott kulcsot!', true);
+        document.getElementById('ch2-p1-check-btn').classList.add('hidden');
+        document.getElementById('ch2-p1-next-btn').classList.remove('hidden');
+      } else {
+        attempts.ch2p1++;
+        recordMistake();
+        if (attempts.ch2p1 === 1) {
+          showFeedback('ch2-p1-msg', '❌ Valamelyik ágyásban még nem érzi jól magát a növény! Olvasd össze újra a 4 nyomot!', false);
+        } else if (attempts.ch2p1 === 2) {
+          let correctCount = (s1 === 'paprika' ? 1 : 0) + (s2 === 'paradicsom' ? 1 : 0) + (s3 === 'bazsalikom' ? 1 : 0) + (s4 === 'fokhagyma' ? 1 : 0);
+          showFeedback('ch2-p1-msg', `❌ Jelenleg ${correctCount} ágyás van jó helyen a 4-ből!`, false);
+        } else {
+          showFeedback('ch2-p1-msg', '💡 Kerti súgás: Mivel a Paradicsom és a Bazsalikom középen (2-3) vannak, és a Paprika a Paradicsom bal oldalán nő, ezért az 1-es csak a Paprika, a 2-es pedig a Paradicsom lehet!', false);
+        }
+      }
+    }
+
+    function advanceCh2ToPart2() {
+      document.getElementById('ch2-part1').classList.add('hidden');
+      document.getElementById('ch2-part2').classList.remove('hidden');
+      document.getElementById('ch2-step-badge').textContent = "2 / 2 RÉSZ";
+    }
+
+    function petBella() {
+      bellaPetCount++;
+      document.getElementById('bella-pet-count').textContent = Math.min(bellaPetCount, 3);
+
+      const card = document.getElementById('bella-card');
+      const heart = document.createElement('div');
+      heart.className = 'heart-particle text-2xl';
+      heart.textContent = '❤️🐾';
+      heart.style.left = `${45 + (Math.random() * 20 - 10)}%`;
+      heart.style.top = '45%';
+      card.appendChild(heart);
+      setTimeout(() => heart.remove(), 1200);
+
+      const barkBox = document.getElementById('bella-bark-box');
+      if (bellaPetCount < 3) {
+        barkBox.textContent = `🐶 Bella nagyot szusszan és csóvál! Még ${3 - bellaPetCount} simit kér!`;
+      } else {
+        barkBox.textContent = `🐶 Bella: „Vau! Most bökj rá a kerti helyekre, és mondom, hány lépésnyire vagyunk a kulcstól!”`;
+        barkBox.className = "p-3 rounded-xl bg-emerald-950 border border-emerald-500 text-xs font-mono-tech text-emerald-200 text-center leading-relaxed";
+      }
+    }
+
+    function initBellaGardenGrid() {
+      const grid = document.getElementById('garden-treasure-grid');
+      grid.innerHTML = '';
+      gardenSpots16.forEach((name, idx) => {
+        const btn = document.createElement('button');
+        btn.id = `garden-spot-${idx}`;
+        btn.onclick = () => digGardenSpot(idx);
+        btn.className = "p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs text-center transition-all flex flex-col justify-between min-h-[58px]";
+        btn.innerHTML = `<div class="font-medium text-slate-200 leading-tight">${name}</div><div id="spot-dist-${idx}" class="text-xs font-mono-tech text-slate-500 mt-1">?</div>`;
+        grid.appendChild(btn);
+      });
+    }
+
+    function digGardenSpot(idx) {
+      const barkBox = document.getElementById('bella-bark-box');
+      if (bellaPetCount < 3) {
+        barkBox.textContent = "🐶 Bella: „Előbb a 3 buksi-simi a fenti gombbal, különben nem árulok el semmit!”";
+        return;
+      }
+
+      const btn = document.getElementById(`garden-spot-${idx}`);
+      const distLabel = document.getElementById(`spot-dist-${idx}`);
+
+      if (idx === secretKeySpot) {
+        btn.className = "p-2 rounded-xl bg-emerald-900 border-2 border-emerald-400 text-xs text-center flex flex-col justify-between min-h-[58px]";
+        distLabel.textContent = "🔑 ITT VAN!";
+        distLabel.className = "text-xs font-mono-tech text-emerald-200 font-bold mt-1";
+        barkBox.innerHTML = "🎉 Bella: „VAU-VAU! Kiástuk a slusszkulcsot az Öreg diófa alól! Megszerezted a 2. számjegyet (8)!”";
+        awardShard(1);
+        document.getElementById('ch2-p2-next-btn').classList.remove('hidden');
+      } else {
+        attempts.ch2p2++;
+        // First 3 exploratory digs are free radar triangulation; 4th+ counts as mistake
+        if (attempts.ch2p2 > 3) {
+          recordMistake();
+        }
+        const r1 = Math.floor(idx / 4), c1 = idx % 4;
+        const r2 = Math.floor(secretKeySpot / 4), c2 = secretKeySpot % 4;
+        const dist = Math.abs(r1 - r2) + Math.abs(c1 - c2);
+
+        btn.className = "p-2 rounded-xl bg-slate-950 border border-amber-500/40 text-xs text-center flex flex-col justify-between min-h-[58px]";
+        distLabel.textContent = `${dist} lépés`;
+        distLabel.className = dist === 1 ? "text-xs font-mono-tech text-rose-400 font-bold mt-1" : "text-xs font-mono-tech text-amber-400 mt-1";
+
+        if (dist === 1) {
+          barkBox.textContent = `🔥 FORRÓ! Bella már kaparja a földet: csak 1 szomszédos mezőnyire (fel/le/oldalra) van innen!`;
+        } else {
+          barkBox.textContent = `🐾 Bella szimatol: „Innen pontosan ${dist} mezőnyire (lépésnyire) ástam el!”`;
+        }
+      }
+    }
+
+    // =========================================================================
+    // 3. ÁLLOMÁS (OSZTRÁK KAMION)
+    // =========================================================================
+    function initTruckPallets() {
+      renderTruckPallets();
+    }
+
+    function setPalletPos(id, pos) {
+      palletsData[id].pos = pos;
+      renderTruckPallets();
+    }
+
+    function renderTruckPallets() {
+      const container = document.getElementById('pallets-container');
+      container.innerHTML = '';
+
+      let frontSum = 0;
+      let rearSum = 0;
+
+      palletsData.forEach(p => {
+        if (p.pos === 'front') frontSum += p.weight;
+        if (p.pos === 'rear') rearSum += p.weight;
+
+        const row = document.createElement('div');
+        row.className = "p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-2 text-xs";
+        row.innerHTML = `
+          <div>
+            <span class="font-bold text-white">${p.city}</span>
+            <span class="ml-1 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono-tech font-bold">${p.weight}t</span>
+          </div>
+          <div class="flex gap-1 font-mono-tech">
+            <button onclick="setPalletPos(${p.id}, 'front')" class="px-2 py-1 rounded ${p.pos === 'front' ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-300'}">Előre</button>
+            <button onclick="setPalletPos(${p.id}, 'rear')" class="px-2 py-1 rounded ${p.pos === 'rear' ? 'bg-blue-500 text-white font-bold' : 'bg-slate-800 text-slate-300'}">Hátra</button>
+            <button onclick="setPalletPos(${p.id}, 'none')" class="px-2 py-1 rounded ${p.pos === 'none' ? 'bg-slate-700 text-white' : 'bg-slate-950 text-slate-500'}">Lent</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      const fEl = document.getElementById('truck-front-weight');
+      const rEl = document.getElementById('truck-rear-weight');
+      fEl.textContent = `${frontSum} t`;
+      rEl.textContent = `${rearSum} t`;
+      fEl.className = frontSum === 13 ? "text-2xl font-extrabold text-emerald-400" : "text-2xl font-extrabold text-amber-400";
+      rEl.className = rearSum === 13 ? "text-2xl font-extrabold text-emerald-400" : "text-2xl font-extrabold text-amber-400";
+    }
+
+    function verifyCh3Part1() {
+      let frontSum = 0, rearSum = 0;
+      palletsData.forEach(p => {
+        if (p.pos === 'front') frontSum += p.weight;
+        if (p.pos === 'rear') rearSum += p.weight;
+      });
+
+      if (frontSum === 13 && rearSum === 13) {
+        showFeedback('ch3-p1-msg', '✅ Első tengely: 13t, Hátsó tengely: 13t! Az ASFINAG mérleg zöldet mutat!', true);
+        document.getElementById('ch3-p1-check-btn').classList.add('hidden');
+        document.getElementById('ch3-p1-next-btn').classList.remove('hidden');
+      } else {
+        attempts.ch3p1++;
+        recordMistake();
+        if (attempts.ch3p1 < 3) {
+          showFeedback('ch3-p1-msg', `❌ Jelenleg Elöl: ${frontSum}t, Hátul: ${rearSum}t. Mindkét szekcióba pontosan 13-13 tonnát kombinálj össze!`, false);
+        } else {
+          showFeedback('ch3-p1-msg', `💡 Kamionos súgás: Nézd a párokat: 8t + 5t = 13t, illetve 7t + 6t = 13t (vagy 9t + 4t = 13t)!`, false);
+        }
+      }
+    }
+
+    function advanceCh3ToPart2() {
+      document.getElementById('ch3-part1').classList.add('hidden');
+      document.getElementById('ch3-part2').classList.remove('hidden');
+      document.getElementById('ch3-step-badge').textContent = "2 / 2 RÉSZ";
+    }
+
+    function verifyCh3Part2() {
+      const timeVal = document.getElementById('tacho-time').value;
+      const tunnelVal = document.getElementById('tacho-tunnel').value;
+
+      if (timeVal === '13:30' && tunnelVal === 'plabutsch') {
+        awardShard(2);
+        showFeedback('ch3-p2-msg', '🎉 Ausztriai fuvar hibátlanul teljesítve! Megszerezted a 3. gyújtáskód-számjegyet (6)!', true);
+        document.getElementById('ch3-p2-check-btn').classList.add('hidden');
+        document.getElementById('ch3-p2-next-btn').classList.remove('hidden');
+      } else {
+        attempts.ch3p2++;
+        recordMistake();
+        if (attempts.ch3p2 === 1) {
+          showFeedback('ch3-p2-msg', '❌ A tachográf vagy az alagút még nem stimmel! Számolj utána még egyszer!', false);
+        } else if (attempts.ch3p2 === 2) {
+          showFeedback('ch3-p2-msg', '❌ Figyelj a percekre is: a 4,5 óra az 4 óra 30 perc, ehhez jön a 45 perc szünet, majd a 2 óra 15 perc!', false);
+        } else {
+          showFeedback('ch3-p2-msg', '💡 Súgás: 06:00 + 4:30 = 10:30, + 45 perc szünet = 11:15, + 2:15 vezetés = 13:30! Graznál pedig a Plabutsch-alagút van.', false);
+        }
+      }
+    }
+
+    // =========================================================================
+    // 4. ÁLLOMÁS (CFMOTO & SZERPENTIN)
+    // =========================================================================
+    function initWashSteps() {
+      washShuffled = [...washStepsData].sort(() => Math.random() - 0.5);
+      washCurrentStep = 1;
+      renderWashSteps();
+    }
+
+    function renderWashSteps() {
+      const container = document.getElementById('wash-steps-container');
+      container.innerHTML = '';
+      washShuffled.forEach(step => {
+        const done = step.id < washCurrentStep;
+        const btn = document.createElement('button');
+        btn.disabled = done;
+        btn.onclick = () => selectWashStep(step.id);
+        btn.className = done
+          ? "w-full p-3 rounded-xl bg-cyan-950/60 border border-cyan-500/60 text-left text-xs text-cyan-200 flex items-center justify-between"
+          : "w-full p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left text-xs text-slate-200 flex items-center justify-between transition-all";
+        btn.innerHTML = `<span>${step.text}</span><span class="font-mono-tech font-bold ml-2">${done ? '✨ #' + step.id : ''}</span>`;
+        container.appendChild(btn);
+      });
+      const pct = (washCurrentStep - 1) * 20;
+      document.getElementById('moto-clean-pct').textContent = `${pct}%`;
+      document.getElementById('moto-clean-bar').style.width = `${pct}%`;
+    }
+
+    function selectWashStep(id) {
+      if (id === washCurrentStep) {
+        washCurrentStep++;
+        renderWashSteps();
+        if (washCurrentStep > 5) {
+          showFeedback('ch4-p1-msg', '✨ A CFMOTO ragyog, a lánc frissen kenve! Készen állsz a szerpentin-túrára!', true);
+          document.getElementById('ch4-p1-next-btn').classList.remove('hidden');
+        } else {
+          showFeedback('ch4-p1-msg', `👍 ${washCurrentStep - 1}. lépés kész! Mi a következő?`, true);
+        }
+      } else {
+        attempts.ch4p1++;
+        recordMistake();
+        if (attempts.ch4p1 < 3) {
+          showFeedback('ch4-p1-msg', '⚠️ Ez a lépés még nem most következik! Gondolj a motor és a lánc védelmére!', false);
+        } else {
+          showFeedback('ch4-p1-msg', '💡 Súgás: 1. Lehűlés megvárása -> 2. Bogároldó hab -> 3. Vízzel leöblítés -> 4. Szárazra törlés -> 5. Láncspray!', false);
+        }
+      }
+    }
+
+    function resetWashSteps() {
+      washCurrentStep = 1;
+      renderWashSteps();
+    }
+
+    function advanceCh4ToPart2() {
+      document.getElementById('ch4-part1').classList.add('hidden');
+      document.getElementById('ch4-part2').classList.remove('hidden');
+      document.getElementById('ch4-step-badge').textContent = "2 / 2 RÉSZ";
+    }
+
+    function verifyCh4Part2() {
+      const q1 = document.getElementById('tour-q1').value;
+      const q2 = document.getElementById('tour-q2').value;
+      const q3 = parseInt(document.getElementById('tour-q3').value, 10);
+
+      if (q1 === 'drava' && q2 === 'D8' && q3 === 42) {
+        awardShard(3);
+        showFeedback('ch4-p2-msg', '🎉 Szerpentin-navigáció teljesítve! Megszerezted a 4. gyújtáskód-számjegyet (9)!', true);
+        document.getElementById('ch4-p2-check-btn').classList.add('hidden');
+        document.getElementById('ch4-p2-next-btn').classList.remove('hidden');
+      } else {
+        attempts.ch4p2++;
+        recordMistake();
+        if (attempts.ch4p2 < 3) {
+          showFeedback('ch4-p2-msg', '❌ Valamelyik navigációs adat még nem pontos! Nézd át a 3 választ!', false);
+        } else {
+          showFeedback('ch4-p2-msg', '💡 Súgás: Maribor a Dráva partján fekszik, az Adriai Magisztrála a D8-as út, a kanyarok összege pedig 14 + 24 + 4!', false);
+        }
+      }
+    }
+
+    // =========================================================================
+    // 5. ÁLLOMÁS (PARÁZS, BOGRÁCSGULYÁS, ČEVAPČIČI & ŠOPSKA)
+    // =========================================================================
+    function initFireControls() {
+      renderFireControls();
+    }
+
+    function toggleFireMod(id) {
+      fireMods[id].active = !fireMods[id].active;
+      renderFireControls();
+    }
+
+    function renderFireControls() {
+      const grid = document.getElementById('fire-controls-grid');
+      grid.innerHTML = '';
+      let temp = 90;
+
+      fireMods.forEach(m => {
+        if (m.active) temp += m.delta;
+        const sign = m.delta > 0 ? `+${m.delta}°C` : `${m.delta}°C`;
+        const btn = document.createElement('button');
+        btn.onclick = () => toggleFireMod(m.id);
+        btn.className = m.active
+          ? "p-2.5 rounded-xl bg-orange-500/20 border-2 border-orange-400 text-left text-xs transition-all"
+          : "p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-left text-xs transition-all";
+        btn.innerHTML = `<div class="font-bold text-white">${m.name}</div><div class="font-mono-tech text-amber-400 mt-0.5">${sign}</div>`;
+        grid.appendChild(btn);
+      });
+
+      const disp = document.getElementById('fire-temp-display');
+      disp.textContent = `${temp} °C`;
+      disp.className = temp === 210 ? "text-2xl font-extrabold text-emerald-400" : "text-2xl font-extrabold text-amber-400";
+    }
+
+    function verifyCh5Part1() {
+      let temp = 90;
+      fireMods.forEach(m => { if (m.active) temp += m.delta; });
+      if (temp === 210) {
+        showFeedback('ch5-p1-msg', '🔥 Pontosan 210 °C! Ez az igazi bográcsozó parázs!', true);
+        document.getElementById('ch5-p1-check-btn').classList.add('hidden');
+        document.getElementById('ch5-p1-next-btn').classList.remove('hidden');
+      } else {
+        attempts.ch5p1++;
+        recordMistake();
+        if (attempts.ch5p1 < 3) {
+          showFeedback('ch5-p1-msg', `❌ A hőfok most ${temp} °C. Pontosan 210 °C-ot kell beállítanod (90-hez még +120 °C kell)!`, false);
+        } else {
+          showFeedback('ch5-p1-msg', `💡 Súgás: Kapcsold be a Száraz akácfát (+65°C), az Állvány lejjebb engedését (+35°C) és a Finom szellőztetést (+20°C)!`, false);
+        }
+      }
+    }
+
+    function advanceCh5ToPart2() {
+      document.getElementById('ch5-part1').classList.add('hidden');
+      document.getElementById('ch5-part2').classList.remove('hidden');
+      document.getElementById('ch5-step-badge').textContent = "2 / 3 RÉSZ";
+    }
+
+    function initBogracsSteps() {
+      bogracsShuffled = [...bogracsData].sort(() => Math.random() - 0.5);
+      bogracsCurrentStep = 1;
+      renderBogracsSteps();
+    }
+
+    function renderBogracsSteps() {
+      const container = document.getElementById('bogracs-steps-container');
+      container.innerHTML = '';
+      bogracsShuffled.forEach(step => {
+        const done = step.id < bogracsCurrentStep;
+        const btn = document.createElement('button');
+        btn.disabled = done;
+        btn.onclick = () => selectBogracsStep(step.id);
+        btn.className = done
+          ? "w-full p-3 rounded-xl bg-orange-950/60 border border-orange-500/60 text-left text-xs text-orange-200 flex items-center justify-between"
+          : "w-full p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left text-xs text-slate-200 flex items-center justify-between transition-all";
+        btn.innerHTML = `<span>${step.text}</span><span class="font-mono-tech font-bold ml-2">${done ? '🍲 #' + step.id : ''}</span>`;
+        container.appendChild(btn);
+      });
+      document.getElementById('bogracs-progress').textContent = `${bogracsCurrentStep - 1} / 5 lépés`;
+    }
+
+    function selectBogracsStep(id) {
+      if (id === bogracsCurrentStep) {
+        bogracsCurrentStep++;
+        renderBogracsSteps();
+        if (bogracsCurrentStep > 5) {
+          showFeedback('ch5-p2-msg', '🍲 Mennyei illat száll a kempingben, a bográcsgulyás rotyog!', true);
+          document.getElementById('ch5-p2-next-btn').classList.remove('hidden');
+        } else {
+          showFeedback('ch5-p2-msg', `👍 ${bogracsCurrentStep - 1}. lépés kész! Mi jön utána?`, true);
+        }
+      } else {
+        attempts.ch5p2++;
+        recordMistake();
+        if (attempts.ch5p2 < 3) {
+          showFeedback('ch5-p2-msg', '⚠️ Nem ez a következő lépés a bográcsban! Gondolj a pörköltalap szabályaira!', false);
+        } else {
+          showFeedback('ch5-p2-msg', '💡 Súgás: 1. Szalonna/hagyma -> 2. Fűszerpaprika (tűzről lehúzva) -> 3. Marhalábszár -> 4. Fűszerek és répa -> 5. Krumpli és csipetke!', false);
+        }
+      }
+    }
+
+    function resetBogracsSteps() {
+      bogracsCurrentStep = 1;
+      renderBogracsSteps();
+    }
+
+    function advanceCh5ToPart3() {
+      document.getElementById('ch5-part2').classList.add('hidden');
+      document.getElementById('ch5-part3').classList.remove('hidden');
+      document.getElementById('ch5-step-badge').textContent = "3 / 3 RÉSZ";
+    }
+
+    function initBalkanGrid() {
+      renderBalkanGrid();
+    }
+
+    function toggleBalkanItem(id) {
+      balkanIngredients[id].selected = !balkanIngredients[id].selected;
+      renderBalkanGrid();
+    }
+
+    function renderBalkanGrid() {
+      const grid = document.getElementById('balkan-ingredients-grid');
+      grid.innerHTML = '';
+      balkanIngredients.forEach(item => {
+        const btn = document.createElement('button');
+        btn.onclick = () => toggleBalkanItem(item.id);
+        btn.className = item.selected
+          ? "p-2.5 rounded-xl bg-amber-500/20 border-2 border-amber-400 text-left text-xs font-bold text-white transition-all"
+          : "p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-left text-xs text-slate-300 transition-all";
+        btn.innerHTML = item.name;
+        grid.appendChild(btn);
+      });
+    }
+
+    function verifyCh5Part3() {
+      const allCorrect = balkanIngredients.every(item => item.selected === item.valid);
+      if (allCorrect) {
+        awardShard(4);
+        showFeedback('ch5-p3-msg', '🎉 Pontosan úgy, ahogy Mariborban! Megszerezted az 5. gyújtáskód-számjegyet (7)!', true);
+        document.getElementById('ch5-p3-check-btn').classList.add('hidden');
+        document.getElementById('ch5-p3-next-btn').classList.remove('hidden');
+      } else {
+        attempts.ch5p3++;
+        recordMistake();
+        const selectedCount = balkanIngredients.filter(i => i.selected).length;
+        if (attempts.ch5p3 < 3) {
+          showFeedback('ch5-p3-msg', `❌ Jelenleg ${selectedCount} hozzávaló van kijelölve. Pontosan az 5 eredeti balkáni alapanyagot válaszd ki!`, false);
+        } else {
+          showFeedback('ch5-p3-msg', '💡 Súgás: Hagyd ki az ananászt, a csokiszószt és a halrudacskát – a másik 5 mind kell!', false);
+        }
+      }
+    }
+
+    // =========================================================================
+    // 6. ÁLLOMÁS (AUTÓRÁDIÓ)
+    // =========================================================================
+    function onFmSlide(val) {
+      currentFm = parseInt(val, 10);
+      const freqStr = (currentFm / 10).toFixed(1) + " FM";
+      document.getElementById('radio-freq-label').textContent = freqStr;
+      const rds = document.getElementById('radio-rds-box');
+      const state = document.getElementById('radio-lock-state');
+
+      if (currentFm === 984) {
+        rds.textContent = "✨ TISZTA JEL (98.4 FM): KOWALSKY & PARNO GRASZT KÜLÖNKIADÁS!";
+        rds.className = "text-xs font-mono-tech text-emerald-300 text-center bg-emerald-950/60 py-2 px-2 rounded border border-emerald-500";
+        state.textContent = "STEREO LOCKED";
+      } else if (Math.abs(currentFm - 984) <= 6) {
+        rds.textContent = "📻 [Majdnem tiszta... finomhangold pontosan 98.4 FM-re!]";
+        rds.className = "text-xs font-mono-tech text-amber-200 text-center bg-black/50 py-2 px-2 rounded border border-amber-800/50";
+        state.textContent = "GYENGE JEL";
+      } else {
+        rds.textContent = "📻 [KСССШШ... Statikus zaj. Keresd a 98.4 FM-et!]";
+        rds.className = "text-xs font-mono-tech text-slate-400 text-center bg-black/50 py-2 px-2 rounded border border-slate-800";
+        state.textContent = "KERESÉS...";
+      }
+    }
+
+    function verifyChapter6() {
+      if (currentFm !== 984) {
+        attempts.ch6++;
+        recordMistake();
+        showFeedback('ch6-msg', '❌ Először húzd a fenti rádió-csúszkát pontosan 98.4 FM-re, hogy tiszta legyen a vétel!', false);
+        return;
+      }
+      const m1 = document.getElementById('music-q1').value;
+      const m2 = document.getElementById('music-q2').value;
+      const m3 = document.getElementById('music-q3').value;
+
+      if (m1 === 'szeretlek' && m2 === 'feherlo' && m3 === 'szedulok') {
+        awardShard(5);
+        showFeedback('ch6-msg', '🎉 Szól a Kowalsky meg a Vega és a Parno Graszt! Megszerezted a 6., utolsó számjegyet is (8)!', true);
+        document.getElementById('ch6-check-btn').classList.add('hidden');
+        document.getElementById('ch6-next-btn').classList.remove('hidden');
+      } else {
+        attempts.ch6++;
+        recordMistake();
+        if (attempts.ch6 < 3) {
+          showFeedback('ch6-msg', '❌ Valamelyik zenei kérdés válasza még nem stimmel! Nézd át őket újra!', false);
+        } else {
+          showFeedback('ch6-msg', '💡 Zenei súgás: 1. „szeretlek”, 2. A Parno Graszt jelentése „Fehér ló”, 3. „Már nem szédülök”!', false);
+        }
+      }
+    }
+
+    // =========================================================================
+    // 7. ÁLLOMÁS (FINÁLÉ & CERTIFICATE GENERÁLÁS)
+    // =========================================================================
+    function unlockFinale() {
+      const val = parseInt(document.getElementById('master-code-input').value, 10);
+      const msg = document.getElementById('finale-lock-msg');
+
+      if (val === 42) {
+        if (timerHandle) clearInterval(timerHandle);
+        const spentSec = (42 * 60) - remainingSeconds;
+        const m = String(Math.floor(spentSec / 60)).padStart(2, '0');
+        const s = String(spentSec % 60).padStart(2, '0');
+        const timeStr = `${m}p ${s}mp`;
+        document.getElementById('final-time-spent').textContent = timeStr;
+        document.getElementById('final-errors-cert').textContent = `${totalMistakes} db`;
+        document.getElementById('final-error-badge').textContent = `${totalMistakes} TESZTPONT`;
+
+        const metaphorEl = document.getElementById('final-error-metaphor');
+        if (totalMistakes === 0) {
+          metaphorEl.innerHTML = "<strong>0 melléfogás!</strong> Elsőre átmentél minden saját élet-teszten – látszik, hogy a Kislányod kívül-belül ismer Téged, Te pedig csukott szemmel is vágod a saját világodat!";
+        } else if (totalMistakes <= 5) {
+          metaphorEl.innerHTML = `Összesen <strong>${totalMistakes} apró tesztpontot</strong> gyűjtöttél a felső görbén: mint egy igazi profi szerelő, pár kapcsolót azért leteszteltél útközben, hogy tényleg figyelt-e a Kislányod minden részletre!`;
+        } else {
+          metaphorEl.innerHTML = `A felső műszer <strong>${totalMistakes} tesztpontot</strong> számolt: alaposan végigpróbáltad a rendszert minden oldalról, de a legfontosabb, hogy minden egyes fejezet a Te életedről szólt, és mindet sikeresen feltörted!`;
+        }
+
+        document.getElementById('finale-lock').classList.add('hidden');
+        document.getElementById('finale-celebration').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        recordMistake();
+        msg.classList.remove('hidden');
+        msg.textContent = "❌ Számold össze újra a 6 számjegyet: 4 + 8 + 6 + 9 + 7 + 8!";
+      }
+    }
+
+    // High-Resolution Downloadable Certificate Generator (Canvas -> PNG)
+    function downloadCertificate() {
+      const canvas = document.getElementById('cert-canvas');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+
+      // Dark metallic background
+      const grad = ctx.createLinearGradient(0, 0, W, H);
+      grad.addColorStop(0, '#090d16');
+      grad.addColorStop(0.5, '#172554');
+      grad.addColorStop(1, '#090d16');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      // Outer gold/amber border
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 8;
+      ctx.strokeRect(30, 30, W - 60, H - 60);
+
+      // Inner technical blue border
+      ctx.strokeStyle = '#3b82f6';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(46, 46, W - 92, H - 92);
+
+      // Header Tag
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = 'bold 22px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('SAVARIA-OS v4.2 // HIVATALOS SZÜLETÉSNAPI TANÚSÍTVÁNY', W / 2, 110);
+
+      // Main Title
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 52px sans-serif';
+      ctx.fillText('ARANY FOKOZATÚ MESTERLEVÉL', W / 2, 175);
+
+      // Subtitle & Name
+      ctx.fillStyle = '#93c5fd';
+      ctx.font = '26px sans-serif';
+      ctx.fillText('Kiállítva a 42. születésnap alkalmából:', W / 2, 235);
+
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 64px sans-serif';
+      ctx.fillText('SZALAI IMRE (APA)', W / 2, 310);
+
+      // Divider line
+      ctx.strokeStyle = '#1e3a8a';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(150, 345);
+      ctx.lineTo(W - 150, 345);
+      ctx.stroke();
+
+      // Achievements Grid
+      ctx.textAlign = 'left';
+      ctx.font = 'bold 24px monospace';
+      const leftX = 120;
+      const rightX = 640;
+
+      ctx.fillStyle = '#34d399';
+      ctx.fillText('✓ 1. VW MŰHELY & TDI VEZÉRLÉS MESTERE', leftX, 410);
+      ctx.fillText('✓ 2. A NAGY KERT & BELLA HŰSÉGES GAZDIJA', leftX, 465);
+      ctx.fillText('✓ 3. OSZTRÁK KAMION & ASFINAG PROFI', leftX, 520);
+
+      ctx.fillText('✓ 4. CFMOTO & ADRIAI SZERPENTIN VADÁSZ', rightX, 410);
+      ctx.fillText('✓ 5. BOGRÁCSGULYÁS & MARIBORI GRILLFŐNÖK', rightX, 465);
+      ctx.fillText('✓ 6. KOWALSKY & PARNO GRASZT HANGMESTER', rightX, 520);
+
+      // Stats Box
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+      ctx.fillRect(120, 570, W - 240, 110);
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(120, 570, W - 240, 110);
+
+      const timeSpent = document.getElementById('final-time-spent').textContent || '42:00';
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 26px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`FLOTTA: Szürke T4 • 2 Passat • CFMOTO   |   IDŐ: ${timeSpent}   |   ÉLET-TESZTEK: ${totalMistakes}`, W / 2, 635);
+
+      // Footer Signature
+      ctx.fillStyle = '#fda4af';
+      ctx.font = 'italic 28px sans-serif';
+      ctx.fillText('„Isten éltessen sokáig a 42. születésnapodon! Nagyon szeretlek!”', W / 2, 740);
+
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 30px sans-serif';
+      ctx.fillText('— A Kislányod ❤️', W / 2, 785);
+
+      // Trigger PNG Download
+      const link = document.createElement('a');
+      link.download = 'Szalai_Imre_42_Mesterlevel.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  </script>
+</body>
+</html>

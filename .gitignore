@@ -1,0 +1,5 @@
+# A nyomtatható dokumentumok és tervek kizárólag lokálisan maradnak a gépen!
+level.html
+certificate.html
+*.md
+docs/
