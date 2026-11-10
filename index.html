@@ -925,8 +925,8 @@
           <!-- Metaforikus Élet-Teszt Diagnosztika Kártya -->
           <div class="card-panel rounded-2xl p-4 space-y-2 border border-amber-500/40">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-mono-tech text-amber-400 font-bold">📊 ÉLET-TESZTELÉSI DIAGNOSZTIKA</span>
-              <span id="final-error-badge" class="text-xs font-mono-tech px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">0 TESZT</span>
+              <span class="text-xs font-mono-tech text-amber-400 font-bold">📊 RENDSZERDIAGNOSZTIKA</span>
+              <span id="final-error-badge" class="text-xs font-mono-tech px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">0 HIBA</span>
             </div>
             <p id="final-error-metaphor" class="text-xs text-slate-300 leading-relaxed"></p>
           </div>
@@ -934,20 +934,17 @@
           <!-- Személyes levél a Kislányodtól (E/2-ben) -->
           <div class="card-panel rounded-2xl p-5 space-y-3.5 border border-rose-500/40 relative">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
-              <span class="text-xs font-mono-tech text-rose-400 font-bold">💌 ÜZENET A KISLÁNYODTÓL:</span>
+              <span class="text-xs font-mono-tech text-rose-400 font-bold">💌 SZÜLETÉSNAPI ÜZENET:</span>
               <span class="text-xs font-mono-tech text-slate-400">boldog_szulinapot_42.txt</span>
             </div>
 
             <div class="text-xs sm:text-sm text-slate-200 space-y-3 leading-relaxed">
               <p><strong>Drága Apa!</strong></p>
               <p>
-                Sikeresen végigvitted a küldetést! Mivel én az IT világában mozgok, idén egy olyan meglepetéssel akartam készülni Neked, amit saját kezűleg, kifejezetten a Te életedből és a kedvenc dolgaidból raktam össze.
+                Isten éltessen nagyon-nagyon sokáig a 42. születésnapodon! Remélem, jól szórakoztál a rejtvényeken, és tetszett ez a kis meglepetés, amit a születésnapodra készítettem.
               </p>
               <p>
-                Láthatod, mennyire figyelek Rád és mennyire ismerlek: benne van a szombathelyi bázisod, a nagy kerted és Bella, a műhely és a bütykölések, a szürke T4-es kempingezések, a két Passatod, az osztrák kamionos kilométereid, a CFMOTO-s szerpentinek, a bográcsgulyások, a közös maribori čevapčičizésünk és šopska salátázásunk emléke, meg persze a Kowalsky meg a Vega és a Parno Graszt!
-              </p>
-              <p>
-                Kívánok Neked még rengeteg balesetmentes kilométert, napsütéses kanyarokat, füstölgő bográcsokat, jó egészséget és nagyon-nagyon boldog 42. születésnapot!
+                Legyen nagyon szép és boldog ez az éved! Kívánok Neked nagyon jó egészséget, sok pihenést a kertben Bellával, rengeteg balesetmentes kilométert az utakon, napsütéses motoros szerpentineket, meg persze sok-sok jó bográcsozást és kempingezést!
               </p>
               <p class="text-right font-bold text-amber-400 pt-2 text-sm">
                 Nagyon szeretlek!<br/>
@@ -957,43 +954,25 @@
           </div>
 
           <!-- Hivatalos Oklevél / Certificate Előnézet & Letöltés -->
-          <div class="vdo-cluster rounded-2xl p-4 space-y-3 border border-blue-500/50">
+          <div class="vdo-cluster rounded-2xl p-4 space-y-3.5 border border-amber-500/40">
             <div class="flex justify-between items-center border-b border-blue-900/60 pb-2">
-              <span class="text-xs font-mono-tech text-blue-300 font-bold">🎂 SZÜLETÉSNAPI EMLÉKLAP</span>
-              <span class="text-xs font-mono-tech text-amber-400">42. ÉV</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2 text-xs">
-              <div class="p-2 rounded bg-slate-950/70 border border-blue-900/40">
-                <div class="text-slate-400">Ünnepelt:</div>
-                <div class="font-bold text-white">Szalai Imre (Apa)</div>
-              </div>
-              <div class="p-2 rounded bg-slate-950/70 border border-blue-900/40">
-                <div class="text-slate-400">Otthon & kert:</div>
-                <div class="font-bold text-white">Szombathely & Bella 🐾</div>
-              </div>
-              <div class="p-2 rounded bg-slate-950/70 border border-blue-900/40">
-                <div class="text-slate-400">Kedvenc gépek:</div>
-                <div class="font-bold text-amber-300">T4, Passatok, CFMOTO</div>
-              </div>
-              <div class="p-2 rounded bg-slate-950/70 border border-blue-900/40">
-                <div class="text-slate-400">Kedvenc ízek:</div>
-                <div class="font-bold text-rose-300">Bográcsgulyás & Čevapčiči</div>
-              </div>
-            </div>
-            <div class="flex justify-between items-center text-xs font-mono-tech text-emerald-400 pt-1 px-1">
-              <span>✓ IDŐ: <strong id="final-time-spent">--:--</strong></span>
-              <span>✓ TESZTEK: <strong id="final-errors-cert">0</strong></span>
+              <span class="text-xs font-mono-tech text-amber-300 font-bold">🏆 HIVATALOS TANÚSÍTVÁNY (CERTIFICATE)</span>
+              <span class="text-xs font-mono-tech text-blue-300">#000042</span>
             </div>
 
-            <!-- Valódi, élőben megjelenített Születésnapi Emléklap előnézet a telefonon -->
-            <div class="rounded-xl overflow-hidden border-2 border-amber-500/40 shadow-lg bg-[#FCF9F2]">
-              <canvas id="cert-canvas" width="1200" height="850" class="w-full h-auto block"></canvas>
+            <!-- Valódi, élőben megjelenített Professzionális Certificate kép (telefonon hosszan nyomva is menthető!) -->
+            <div class="rounded-xl overflow-hidden border-2 border-amber-500/50 shadow-2xl bg-[#0b1120]">
+              <img id="cert-preview-img" alt="Szalai Imre Certificate" class="w-full h-auto block" />
+              <canvas id="cert-canvas" width="1600" height="1130" class="hidden"></canvas>
             </div>
 
             <!-- Letölthető Certificate Generáló Gomb -->
-            <button onclick="downloadCertificate()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2">
-              <span>📥</span> SZÜLETÉSNAPI EMLÉKLAP LETÖLTÉSE (KÉP)
+            <button onclick="downloadCertificate()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-amber-500/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2">
+              <span>📥</span> CERTIFICATE LETÖLTÉSE TELEFONRA (PNG)
             </button>
+            <p class="text-xs text-center text-slate-400">
+              💡 <em>Tipp: A gombra bökve azonnal letöltődik (vagy megoszthatod/mentheted a Fotók közé), de magát a fenti képet hosszan megnyomva is lementheted!</em>
+            </p>
           </div>
         </div>
       </div>
@@ -1941,18 +1920,16 @@
         const spentSec = (42 * 60) - remainingSeconds;
         const m = String(Math.floor(spentSec / 60)).padStart(2, '0');
         const s = String(spentSec % 60).padStart(2, '0');
-        const timeStr = `${m}p ${s}mp`;
-        document.getElementById('final-time-spent').textContent = timeStr;
-        document.getElementById('final-errors-cert').textContent = `${totalMistakes} db`;
-        document.getElementById('final-error-badge').textContent = `${totalMistakes} TESZTPONT`;
+        window.finalTimeStr = `${m}p ${s}mp`;
+        document.getElementById('final-error-badge').textContent = `${totalMistakes} HIBA`;
 
         const metaphorEl = document.getElementById('final-error-metaphor');
         if (totalMistakes === 0) {
-          metaphorEl.innerHTML = "<strong>0 melléfogás!</strong> Elsőre átmentél minden saját élet-teszten – látszik, hogy a Kislányod kívül-belül ismer Téged, Te pedig csukott szemmel is vágod a saját világodat!";
+          metaphorEl.innerHTML = `<strong>Hibátlan teljesítés (${window.finalTimeStr})!</strong> Elsőre átmentél mind a 6 állomáson egyetlen melléfogás nélkül!`;
         } else if (totalMistakes <= 5) {
-          metaphorEl.innerHTML = `Összesen <strong>${totalMistakes} apró tesztpontot</strong> gyűjtöttél a felső görbén: mint egy igazi profi szerelő, pár kapcsolót azért leteszteltél útközben, hogy tényleg figyelt-e a Kislányod minden részletre!`;
+          metaphorEl.innerHTML = `Szép munka! <strong>${window.finalTimeStr}</strong> alatt, mindössze <strong>${totalMistakes} apró hibával</strong> teljesítetted az összes állomást!`;
         } else {
-          metaphorEl.innerHTML = `A felső műszer <strong>${totalMistakes} tesztpontot</strong> számolt: alaposan végigpróbáltad a rendszert minden oldalról, de a legfontosabb, hogy minden egyes fejezet a Te életedről szólt, és mindet sikeresen feltörted!`;
+          metaphorEl.innerHTML = `Sikeres küldetés! <strong>${window.finalTimeStr}</strong> alatt, <strong>${totalMistakes} próbálkozással</strong> minden zárat sikeresen feltörtél!`;
         }
 
         document.getElementById('finale-lock').classList.add('hidden');
@@ -1966,110 +1943,256 @@
       }
     }
 
-    // Draw the Certificate onto #cert-canvas so it is visible inline AND downloadable
+    // Draw the Professional Certificate onto #cert-canvas and sync to #cert-preview-img
     function renderCertificateCanvas() {
       const canvas = document.getElementById('cert-canvas');
       const ctx = canvas.getContext('2d');
-      const W = canvas.width;
-      const H = canvas.height;
+      const W = canvas.width;   // 1600
+      const H = canvas.height;  // 1130
 
-      // Warm cream/parchment background
-      const grad = ctx.createLinearGradient(0, 0, W, H);
-      grad.addColorStop(0, '#FCF9F2');
-      grad.addColorStop(1, '#F5EFE4');
-      ctx.fillStyle = grad;
+      // 1. Deep Navy / Slate Luxury Background
+      const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+      bgGrad.addColorStop(0, '#070b14');
+      bgGrad.addColorStop(0.5, '#0f172a');
+      bgGrad.addColorStop(1, '#070b14');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, W, H);
 
-      // Elegant outer frame (warm charcoal)
-      ctx.strokeStyle = '#292524';
-      ctx.lineWidth = 5;
-      ctx.strokeRect(36, 36, W - 72, H - 72);
+      // Subtle radial glow in center
+      const radGrad = ctx.createRadialGradient(W / 2, H / 2 - 50, 50, W / 2, H / 2, 750);
+      radGrad.addColorStop(0, 'rgba(30, 58, 138, 0.35)');
+      radGrad.addColorStop(1, 'rgba(7, 11, 20, 0)');
+      ctx.fillStyle = radGrad;
+      ctx.fillRect(0, 0, W, H);
 
-      // Subtle warm gold inner frame
-      ctx.strokeStyle = '#D97706';
+      // Subtle architectural grid lines
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.04)';
+      ctx.lineWidth = 1;
+      for (let x = 80; x < W; x += 80) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (let y = 80; y < H; y += 80) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+
+      // 2. Metallic Gold Outer & Inner Borders with Corner Ornaments
+      const goldGrad = ctx.createLinearGradient(0, 0, W, H);
+      goldGrad.addColorStop(0, '#b45309');
+      goldGrad.addColorStop(0.25, '#fbbf24');
+      goldGrad.addColorStop(0.5, '#fef3c7');
+      goldGrad.addColorStop(0.75, '#fbbf24');
+      goldGrad.addColorStop(1, '#92400e');
+
+      ctx.strokeStyle = goldGrad;
+      ctx.lineWidth = 6;
+      ctx.strokeRect(48, 48, W - 96, H - 96);
+
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.35)';
       ctx.lineWidth = 2;
-      ctx.strokeRect(50, 50, W - 100, H - 100);
+      ctx.strokeRect(64, 64, W - 128, H - 128);
 
-      // Top badge text
-      ctx.fillStyle = '#B45309';
-      ctx.font = 'bold 20px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('42. SZÜLETÉSNAPI EMLÉKLAP', W / 2, 115);
+      // Corner accents
+      const corners = [[48, 48, 1, 1], [W - 48, 48, -1, 1], [48, H - 48, 1, -1], [W - 48, H - 48, -1, -1]];
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 4;
+      corners.forEach(([cx, cy, dx, dy]) => {
+        ctx.beginPath();
+        ctx.moveTo(cx + dx * 36, cy + dy * 10);
+        ctx.lineTo(cx + dx * 10, cy + dy * 10);
+        ctx.lineTo(cx + dx * 10, cy + dy * 36);
+        ctx.stroke();
+      });
 
-      // Main Title
-      ctx.fillStyle = '#1C1917';
-      ctx.font = 'bold 50px Georgia, serif';
-      ctx.fillText('Isten éltessen sokáig, Apa!', W / 2, 180);
-
-      // Name
-      ctx.fillStyle = '#B45309';
-      ctx.font = 'bold 58px Georgia, serif';
-      ctx.fillText('Szalai Imre', W / 2, 260);
-
-      // Personal subtitle
-      ctx.fillStyle = '#57534E';
-      ctx.font = 'italic 25px Georgia, serif';
-      ctx.fillText('Akire minden helyzetben lehet számítani – itthon, az utakon és a kertben is:', W / 2, 315);
-
-      // Divider line
-      ctx.strokeStyle = '#D6D3D1';
+      // 3. Top Header Pill
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.12)';
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.5)';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(160, 345);
-      ctx.lineTo(W - 160, 345);
+      ctx.roundRect(W / 2 - 280, 105, 560, 44, 22);
+      ctx.fill();
       ctx.stroke();
 
-      // Natural, warm 2-column highlights
-      ctx.textAlign = 'left';
-      ctx.font = '600 24px sans-serif';
-      ctx.fillStyle = '#292524';
-      const leftX = 125;
-      const rightX = 635;
-
-      ctx.fillText('🔧  A szürke T4 és a Passatok bütykölője', leftX, 410);
-      ctx.fillText('🐾  A nagy kert és Bella legjobb gazdija', leftX, 465);
-      ctx.fillText('🚛  Az osztrák autópályák biztos kezű sofőrje', leftX, 520);
-
-      ctx.fillText('🏍️  A CFMOTO és a szerpentinek szerelmese', rightX, 410);
-      ctx.fillText('🍲  A bográcsgulyások és a jó grillezések mestere', rightX, 465);
-      ctx.fillText('🎸  A Kowalsky meg a Vega & Parno Graszt rajongója', rightX, 520);
-
-      // Warm central quote box
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(125, 560, W - 250, 120);
-      ctx.strokeStyle = '#E7E5E4';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(125, 560, W - 250, 120);
-
-      const timeSpent = document.getElementById('final-time-spent').textContent || '31p 14mp';
-      ctx.fillStyle = '#44403C';
-      ctx.font = 'italic 23px Georgia, serif';
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 19px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('„Kívánok Neked még rengeteg balesetmentes kilométert, napsütéses kanyarokat,', W / 2, 602);
-      ctx.fillText('füstölgő bográcsokat, jó egészséget és nagyon boldog 42. születésnapot!”', W / 2, 636);
+      ctx.fillText('OFFICIAL CERTIFICATE OF EXCELLENCE  •  EDITION 42', W / 2, 134);
 
-      ctx.fillStyle = '#78716C';
-      ctx.font = '600 18px sans-serif';
-      ctx.fillText(`Szabadulószoba teljesítve (${timeSpent})  •  Szombathely`, W / 2, 666);
+      // 4. Main Title
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 58px Georgia, serif';
+      ctx.fillText('MESTERFOKOZATÚ TANÚSÍTVÁNY', W / 2, 225);
 
-      // Footer Signature
-      ctx.fillStyle = '#78716C';
-      ctx.font = 'italic 23px Georgia, serif';
-      ctx.fillText('Sok-sok szeretettel:', W / 2, 735);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'italic 24px Georgia, serif';
+      ctx.fillText('Hivatalosan igazoljuk, hogy a 42. születésnapi küldetés összes állomását sikeresen teljesítette:', W / 2, 275);
 
-      ctx.fillStyle = '#B45309';
-      ctx.font = 'bold 32px Georgia, serif';
-      ctx.fillText('— A Kislányod ❤️', W / 2, 782);
+      // 5. Recipient Name in Gold
+      ctx.fillStyle = goldGrad;
+      ctx.font = 'bold 78px Georgia, serif';
+      ctx.fillText('SZALAI IMRE', W / 2, 375);
+
+      // Decorative Gold Line under Name
+      ctx.strokeStyle = goldGrad;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(W / 2 - 320, 405);
+      ctx.lineTo(W / 2 + 320, 405);
+      ctx.stroke();
+
+      // 6. Six Professional Qualification Cards (2x3 Grid)
+      const modules = [
+        { code: "MODUL 01 // FLOTTA & TDI", title: "VW T4 & Passat Műhelymester", sub: "Diagnosztika, 42A főrelé és vezérlés" },
+        { code: "MODUL 02 // SZERPENTIN", title: "CFMOTO Túra & Hágó-Navigátor", sub: "Szlovákia • Maribor • Jadranska Magistrala" },
+        { code: "MODUL 03 // LOGISZTIKA", title: "Nemzetközi Kamion & ASFINAG Profi", sub: "Tengelysúly-optimalizálás és tachográf" },
+        { code: "MODUL 04 // GASZTRONÓMIA", title: "Bográcsgulyás & Grillfőnök", sub: "210°C parázs, čevapčiči és šopska saláta" },
+        { code: "MODUL 05 // BIRTOK & KERT", title: "A Nagy Kert & Bella Főfelügyelője", sub: "Kertészeti logika és kincskeresés" },
+        { code: "MODUL 06 // AKUSZTIKA", title: "Blaupunkt FM & Hangmester", sub: "98.4 FM • Kowalsky meg a Vega • Parno Graszt" }
+      ];
+
+      const cardW = 640;
+      const cardH = 105;
+      const startXLeft = 130;
+      const startXRight = 830;
+      const startY = 445;
+      const gapY = 125;
+
+      modules.forEach((m, idx) => {
+        const col = idx % 2;
+        const row = Math.floor(idx / 2);
+        const x = col === 0 ? startXLeft : startXRight;
+        const y = startY + row * gapY;
+
+        // Card Box
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+        ctx.strokeStyle = 'rgba(59, 130, 246, 0.35)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(x, y, cardW, cardH, 14);
+        ctx.fill();
+        ctx.stroke();
+
+        // Left Gold Accent Bar
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.roundRect(x, y, 8, cardH, [14, 0, 0, 14]);
+        ctx.fill();
+
+        // Text
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#60a5fa';
+        ctx.font = 'bold 15px monospace';
+        ctx.fillText(m.code, x + 26, y + 30);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 23px sans-serif';
+        ctx.fillText(m.title, x + 26, y + 60);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '17px sans-serif';
+        ctx.fillText(m.sub, x + 26, y + 86);
+
+        // Checkmark Badge on Right
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x + cardW - 42, y + cardH / 2, 20, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#34d399';
+        ctx.font = 'bold 22px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('✓', x + cardW - 42, y + cardH / 2 + 8);
+      });
+
+      // 7. Bottom Footer: Left Stats, Center Gold Seal ("42"), Right Signature
+      const footerY = 890;
+
+      // Left telemetry box
+      const timeStr = window.finalTimeStr || '30p 14mp';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 18px monospace';
+      ctx.fillText('KIÁLLÍTÁS HELYE: SZOMBATHELY', 130, footerY);
+      ctx.fillText(`SZINTIDŐ: ${timeStr}   |   HIBASZÁMLÁLÓ: ${totalMistakes}`, 130, footerY + 32);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillText('STÁTUSZ: 100% TELJESÍTVE  •  #SZALAI-42', 130, footerY + 64);
+
+      // Center Gold Seal (42)
+      const sealX = W / 2;
+      const sealY = footerY + 28;
+      ctx.fillStyle = '#1e293b';
+      ctx.strokeStyle = goldGrad;
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.arc(sealX, sealY, 64, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(sealX, sealY, 54, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 44px Georgia, serif';
+      ctx.fillText('42', sealX, sealY + 10);
+      ctx.font = 'bold 13px monospace';
+      ctx.fillStyle = '#fde68a';
+      ctx.fillText('ÉVJÁRAT', sealX, sealY + 32);
+
+      // Right Signature Block
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = 'italic 24px Georgia, serif';
+      ctx.fillText('„Isten éltessen sokáig a 42. születésnapodon!”', W - 130, footerY + 12);
+
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 30px Georgia, serif';
+      ctx.fillText('— A Kislányod ❤️', W - 130, footerY + 55);
+
+      // Sync canvas to the visible <img> tag so mobile users can also long-press save
+      const previewImg = document.getElementById('cert-preview-img');
+      if (previewImg) {
+        previewImg.src = canvas.toDataURL('image/png');
+      }
     }
 
-    // High-Resolution Downloadable Certificate Generator (Canvas -> PNG)
+    // Reliable Mobile + Desktop Download (Blob + Web Share / Anchor Download)
     function downloadCertificate() {
       renderCertificateCanvas();
       const canvas = document.getElementById('cert-canvas');
-      const link = document.createElement('a');
-      link.download = 'Apa_42_Szuletesnapi_Emleklap.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const fileName = 'Szalai_Imre_42_Certificate.png';
+
+        // On mobile (iOS/Android), if Web Share API with files is supported, allow direct "Save Image" / Share
+        const file = new File([blob], fileName, { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] }) && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: 'Szalai Imre - 42. Születésnapi Certificate'
+            });
+            return;
+          } catch (err) {
+            // If user cancels share sheet or share fails, fall back to direct blob download
+          }
+        }
+
+        // Standard direct download via Blob URL
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      }, 'image/png');
     }
   </script>
 </body>
