@@ -985,6 +985,11 @@
               <span>✓ TESZTEK: <strong id="final-errors-cert">0</strong></span>
             </div>
 
+            <!-- Valódi, élőben megjelenített Születésnapi Emléklap előnézet a telefonon -->
+            <div class="rounded-xl overflow-hidden border-2 border-amber-500/40 shadow-lg bg-[#FCF9F2]">
+              <canvas id="cert-canvas" width="1200" height="850" class="w-full h-auto block"></canvas>
+            </div>
+
             <!-- Letölthető Certificate Generáló Gomb -->
             <button onclick="downloadCertificate()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2">
               <span>📥</span> SZÜLETÉSNAPI EMLÉKLAP LETÖLTÉSE (KÉP)
@@ -1007,9 +1012,6 @@
     </footer>
 
   </div>
-
-  <!-- Hidden High-Res Canvas for Certificate Download -->
-  <canvas id="cert-canvas" width="1200" height="850" class="hidden"></canvas>
 
   <script>
     // Global State
@@ -1131,6 +1133,17 @@
       initBogracsSteps();
       initBalkanGrid();
       updateChapterNavUI();
+
+      // Secret test parameter for Kislányod: ?teszt=finale or #finale
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('teszt') === 'finale' || window.location.hash === '#finale') {
+        maxUnlockedChapter = 7;
+        for (let i = 0; i < 6; i++) awardShard(i);
+        remainingSeconds = 11 * 60 + 46; // Demo 30p 14mp spent
+        goToChapter(7);
+        document.getElementById('master-code-input').value = 42;
+        unlockFinale();
+      }
     });
 
     function toggleGodMode() {
@@ -1944,6 +1957,7 @@
 
         document.getElementById('finale-lock').classList.add('hidden');
         document.getElementById('finale-celebration').classList.remove('hidden');
+        renderCertificateCanvas();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         recordMistake();
@@ -1952,8 +1966,8 @@
       }
     }
 
-    // High-Resolution Downloadable Certificate Generator (Canvas -> PNG)
-    function downloadCertificate() {
+    // Draw the Certificate onto #cert-canvas so it is visible inline AND downloadable
+    function renderCertificateCanvas() {
       const canvas = document.getElementById('cert-canvas');
       const ctx = canvas.getContext('2d');
       const W = canvas.width;
@@ -2027,7 +2041,7 @@
       ctx.lineWidth = 2;
       ctx.strokeRect(125, 560, W - 250, 120);
 
-      const timeSpent = document.getElementById('final-time-spent').textContent || '42:00';
+      const timeSpent = document.getElementById('final-time-spent').textContent || '31p 14mp';
       ctx.fillStyle = '#44403C';
       ctx.font = 'italic 23px Georgia, serif';
       ctx.textAlign = 'center';
@@ -2046,8 +2060,12 @@
       ctx.fillStyle = '#B45309';
       ctx.font = 'bold 32px Georgia, serif';
       ctx.fillText('— A Kislányod ❤️', W / 2, 782);
+    }
 
-      // Trigger PNG Download
+    // High-Resolution Downloadable Certificate Generator (Canvas -> PNG)
+    function downloadCertificate() {
+      renderCertificateCanvas();
+      const canvas = document.getElementById('cert-canvas');
       const link = document.createElement('a');
       link.download = 'Apa_42_Szuletesnapi_Emleklap.png';
       link.href = canvas.toDataURL('image/png');
