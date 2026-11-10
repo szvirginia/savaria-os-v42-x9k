@@ -959,25 +959,25 @@
           <!-- Hivatalos Oklevél / Certificate Előnézet & Letöltés -->
           <div class="vdo-cluster rounded-2xl p-4 space-y-3 border border-blue-500/50">
             <div class="flex justify-between items-center border-b border-blue-900/60 pb-2">
-              <span class="text-xs font-mono-tech text-blue-300 font-bold">🏆 HIVATALOS MESTERLEVÉL (CERTIFICATE)</span>
-              <span class="text-xs font-mono-tech text-amber-400">#SZALAI-42</span>
+              <span class="text-xs font-mono-tech text-blue-300 font-bold">🎂 SZÜLETÉSNAPI EMLÉKLAP</span>
+              <span class="text-xs font-mono-tech text-amber-400">42. ÉV</span>
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs">
               <div class="p-2 rounded bg-slate-950/70 border border-blue-900/40">
-                <div class="text-slate-400">Név:</div>
+                <div class="text-slate-400">Ünnepelt:</div>
                 <div class="font-bold text-white">Szalai Imre (Apa)</div>
               </div>
               <div class="p-2 rounded bg-slate-950/70 border border-blue-900/40">
-                <div class="text-slate-400">Bázis:</div>
-                <div class="font-bold text-white">Szombathely</div>
+                <div class="text-slate-400">Otthon & kert:</div>
+                <div class="font-bold text-white">Szombathely & Bella 🐾</div>
               </div>
               <div class="p-2 rounded bg-slate-950/70 border border-blue-900/40">
-                <div class="text-slate-400">Flotta:</div>
-                <div class="font-bold text-amber-300">T4, 2 Passat, CFMOTO</div>
+                <div class="text-slate-400">Kedvenc gépek:</div>
+                <div class="font-bold text-amber-300">T4, Passatok, CFMOTO</div>
               </div>
               <div class="p-2 rounded bg-slate-950/70 border border-blue-900/40">
-                <div class="text-slate-400">Kerti főfelügyelő:</div>
-                <div class="font-bold text-rose-300">Bella 🐾</div>
+                <div class="text-slate-400">Kedvenc ízek:</div>
+                <div class="font-bold text-rose-300">Bográcsgulyás & Čevapčiči</div>
               </div>
             </div>
             <div class="flex justify-between items-center text-xs font-mono-tech text-emerald-400 pt-1 px-1">
@@ -987,7 +987,7 @@
 
             <!-- Letölthető Certificate Generáló Gomb -->
             <button onclick="downloadCertificate()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2">
-              <span>📥</span> HIVATALOS MESTERLEVÉL LETÖLTÉSE (PNG KÉP)
+              <span>📥</span> SZÜLETÉSNAPI EMLÉKLAP LETÖLTÉSE (KÉP)
             </button>
           </div>
         </div>
@@ -1959,92 +1959,97 @@
       const W = canvas.width;
       const H = canvas.height;
 
-      // Dark metallic background
+      // Warm cream/parchment background
       const grad = ctx.createLinearGradient(0, 0, W, H);
-      grad.addColorStop(0, '#090d16');
-      grad.addColorStop(0.5, '#172554');
-      grad.addColorStop(1, '#090d16');
+      grad.addColorStop(0, '#FCF9F2');
+      grad.addColorStop(1, '#F5EFE4');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, W, H);
 
-      // Outer gold/amber border
-      ctx.strokeStyle = '#f59e0b';
-      ctx.lineWidth = 8;
-      ctx.strokeRect(30, 30, W - 60, H - 60);
+      // Elegant outer frame (warm charcoal)
+      ctx.strokeStyle = '#292524';
+      ctx.lineWidth = 5;
+      ctx.strokeRect(36, 36, W - 72, H - 72);
 
-      // Inner technical blue border
-      ctx.strokeStyle = '#3b82f6';
+      // Subtle warm gold inner frame
+      ctx.strokeStyle = '#D97706';
       ctx.lineWidth = 2;
-      ctx.strokeRect(46, 46, W - 92, H - 92);
+      ctx.strokeRect(50, 50, W - 100, H - 100);
 
-      // Header Tag
-      ctx.fillStyle = '#f59e0b';
-      ctx.font = 'bold 22px monospace';
+      // Top badge text
+      ctx.fillStyle = '#B45309';
+      ctx.font = 'bold 20px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('SAVARIA-OS v4.2 // HIVATALOS SZÜLETÉSNAPI TANÚSÍTVÁNY', W / 2, 110);
+      ctx.fillText('42. SZÜLETÉSNAPI EMLÉKLAP', W / 2, 115);
 
       // Main Title
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 52px sans-serif';
-      ctx.fillText('ARANY FOKOZATÚ MESTERLEVÉL', W / 2, 175);
+      ctx.fillStyle = '#1C1917';
+      ctx.font = 'bold 50px Georgia, serif';
+      ctx.fillText('Isten éltessen sokáig, Apa!', W / 2, 180);
 
-      // Subtitle & Name
-      ctx.fillStyle = '#93c5fd';
-      ctx.font = '26px sans-serif';
-      ctx.fillText('Kiállítva a 42. születésnap alkalmából:', W / 2, 235);
+      // Name
+      ctx.fillStyle = '#B45309';
+      ctx.font = 'bold 58px Georgia, serif';
+      ctx.fillText('Szalai Imre', W / 2, 260);
 
-      ctx.fillStyle = '#fbbf24';
-      ctx.font = 'bold 64px sans-serif';
-      ctx.fillText('SZALAI IMRE (APA)', W / 2, 310);
+      // Personal subtitle
+      ctx.fillStyle = '#57534E';
+      ctx.font = 'italic 25px Georgia, serif';
+      ctx.fillText('Akire minden helyzetben lehet számítani – itthon, az utakon és a kertben is:', W / 2, 315);
 
       // Divider line
-      ctx.strokeStyle = '#1e3a8a';
-      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#D6D3D1';
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(150, 345);
-      ctx.lineTo(W - 150, 345);
+      ctx.moveTo(160, 345);
+      ctx.lineTo(W - 160, 345);
       ctx.stroke();
 
-      // Achievements Grid
+      // Natural, warm 2-column highlights
       ctx.textAlign = 'left';
-      ctx.font = 'bold 24px monospace';
-      const leftX = 120;
-      const rightX = 640;
+      ctx.font = '600 24px sans-serif';
+      ctx.fillStyle = '#292524';
+      const leftX = 125;
+      const rightX = 635;
 
-      ctx.fillStyle = '#34d399';
-      ctx.fillText('✓ 1. VW MŰHELY & TDI VEZÉRLÉS MESTERE', leftX, 410);
-      ctx.fillText('✓ 2. A NAGY KERT & BELLA HŰSÉGES GAZDIJA', leftX, 465);
-      ctx.fillText('✓ 3. OSZTRÁK KAMION & ASFINAG PROFI', leftX, 520);
+      ctx.fillText('🔧  A szürke T4 és a Passatok bütykölője', leftX, 410);
+      ctx.fillText('🐾  A nagy kert és Bella legjobb gazdija', leftX, 465);
+      ctx.fillText('🚛  Az osztrák autópályák biztos kezű sofőrje', leftX, 520);
 
-      ctx.fillText('✓ 4. CFMOTO & ADRIAI SZERPENTIN VADÁSZ', rightX, 410);
-      ctx.fillText('✓ 5. BOGRÁCSGULYÁS & MARIBORI GRILLFŐNÖK', rightX, 465);
-      ctx.fillText('✓ 6. KOWALSKY & PARNO GRASZT HANGMESTER', rightX, 520);
+      ctx.fillText('🏍️  A CFMOTO és a szerpentinek szerelmese', rightX, 410);
+      ctx.fillText('🍲  A bográcsgulyások és a jó grillezések mestere', rightX, 465);
+      ctx.fillText('🎸  A Kowalsky meg a Vega & Parno Graszt rajongója', rightX, 520);
 
-      // Stats Box
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-      ctx.fillRect(120, 570, W - 240, 110);
-      ctx.strokeStyle = '#f59e0b';
+      // Warm central quote box
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(125, 560, W - 250, 120);
+      ctx.strokeStyle = '#E7E5E4';
       ctx.lineWidth = 2;
-      ctx.strokeRect(120, 570, W - 240, 110);
+      ctx.strokeRect(125, 560, W - 250, 120);
 
       const timeSpent = document.getElementById('final-time-spent').textContent || '42:00';
-      ctx.fillStyle = '#f8fafc';
-      ctx.font = 'bold 26px monospace';
+      ctx.fillStyle = '#44403C';
+      ctx.font = 'italic 23px Georgia, serif';
       ctx.textAlign = 'center';
-      ctx.fillText(`FLOTTA: Szürke T4 • 2 Passat • CFMOTO   |   IDŐ: ${timeSpent}   |   ÉLET-TESZTEK: ${totalMistakes}`, W / 2, 635);
+      ctx.fillText('„Kívánok Neked még rengeteg balesetmentes kilométert, napsütéses kanyarokat,', W / 2, 602);
+      ctx.fillText('füstölgő bográcsokat, jó egészséget és nagyon boldog 42. születésnapot!”', W / 2, 636);
+
+      ctx.fillStyle = '#78716C';
+      ctx.font = '600 18px sans-serif';
+      ctx.fillText(`Szabadulószoba teljesítve (${timeSpent})  •  Szombathely`, W / 2, 666);
 
       // Footer Signature
-      ctx.fillStyle = '#fda4af';
-      ctx.font = 'italic 28px sans-serif';
-      ctx.fillText('„Isten éltessen sokáig a 42. születésnapodon! Nagyon szeretlek!”', W / 2, 740);
+      ctx.fillStyle = '#78716C';
+      ctx.font = 'italic 23px Georgia, serif';
+      ctx.fillText('Sok-sok szeretettel:', W / 2, 735);
 
-      ctx.fillStyle = '#fbbf24';
-      ctx.font = 'bold 30px sans-serif';
-      ctx.fillText('— A Kislányod ❤️', W / 2, 785);
+      ctx.fillStyle = '#B45309';
+      ctx.font = 'bold 32px Georgia, serif';
+      ctx.fillText('— A Kislányod ❤️', W / 2, 782);
 
       // Trigger PNG Download
       const link = document.createElement('a');
-      link.download = 'Szalai_Imre_42_Mesterlevel.png';
+      link.download = 'Apa_42_Szuletesnapi_Emleklap.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
     }
