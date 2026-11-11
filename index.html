@@ -82,7 +82,7 @@
         <span class="text-slate-300 font-bold tracking-wider">SAVARIA-OS v4.2</span>
       </div>
       <div class="text-amber-400 font-semibold">SZALAI IMRE // 42</div>
-      <button onclick="toggleGodMode()" class="text-amber-300 hover:text-white px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-xs font-bold">
+      <button onclick="toggleChapterNav()" class="text-amber-300 hover:text-white px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-xs font-bold">
         ⚙️ PÁLYÁK
       </button>
     </header>
@@ -109,7 +109,7 @@
             </div>
           </div>
 
-          <!-- Center: Curved SVG Gauge for Mistakes ("Tesztek / Melléfogások") -->
+          <!-- Center: Curved SVG Gauge for Mistakes -->
           <div class="col-span-4 flex flex-col items-center justify-center border-x border-blue-900/40 px-1">
             <div class="relative w-20 h-11 flex items-end justify-center">
               <svg viewBox="0 0 100 56" class="w-full h-full overflow-visible">
@@ -149,10 +149,10 @@
       </div>
 
       <!-- PÁLYAVÁLASZTÓ (CSAK FELOLDOTT PÁLYÁKRA ENGED LÉPNI) -->
-      <div id="god-mode-panel" class="hidden mt-2 p-3 rounded-xl bg-slate-900 border border-amber-500/50 text-xs space-y-2">
+      <div id="chapter-nav-panel" class="hidden mt-2 p-3 rounded-xl bg-slate-900 border border-amber-500/50 text-xs space-y-2">
         <div class="flex justify-between items-center text-amber-300 font-bold">
           <span>🗺️ Állomások (Visszalépés a már feloldott pályákra):</span>
-          <button onclick="toggleGodMode()" class="text-slate-400 hover:text-white">✕</button>
+          <button onclick="toggleChapterNav()" class="text-slate-400 hover:text-white">✕</button>
         </div>
         <div class="grid grid-cols-4 gap-1.5 font-mono-tech" id="chapter-nav-grid">
           <button id="nav-btn-0" onclick="trySelectChapter(0)" class="p-1.5 rounded text-center transition-all"></button>
@@ -200,7 +200,7 @@
             </li>
             <li class="flex gap-2">
               <span class="text-amber-400 font-bold">•</span>
-              <span><strong>6 állomás</strong> és <strong>13 fejtörő</strong> vár rád. Fent középen egy kis íves műszer számolja a melléfogásokat – nincs büntetés érte, de a végén kiderül, mennyire tesztelted le a saját életedet! (Ha valahol elakadnál, a 3. próbálkozás után a rendszer ad egy kis szakmai súgást.)</span>
+              <span><strong>6 állomás</strong> és <strong>13 fejtörő</strong> vár rád. Fent középen egy kis íves műszer számolja a melléfogásokat – nincs büntetés érte, de a végén kiderül, hány próbálkozásból raktad össze a kódot! (Ha valahol elakadnál, a 3. próbálkozás után a rendszer ad egy kis szakmai súgást.)</span>
             </li>
             <li class="flex gap-2">
               <span class="text-amber-400 font-bold">•</span>
@@ -608,7 +608,7 @@
           </div>
           <h2 class="text-base font-bold text-white">CFMOTO Spa & Hágó-Matematika 🏍️⛰️</h2>
           <p class="text-xs text-slate-400 mt-1">
-            Kamion leparkolva, elő a CFMOTO-val! Előbb egy profi mosás, aztán irány a szlovák, szlovén és horvát kanyarok!
+            Kamion leparkolva, elő a CFMOTO-val! Előbb egy profi mosás, aztán jöhetnek a szlovák, szlovén és horvát kanyarok!
           </p>
         </div>
 
@@ -818,7 +818,7 @@
               95.0 FM
             </div>
             <div id="radio-rds-box" class="text-xs font-mono-tech text-amber-200 text-center bg-black/50 py-2 px-2 rounded border border-amber-800/50">
-              📻 [KСССШШ... Tekerd a csúszkát a tiszta adáshoz!]
+              📻 [Kssshhh... Tekerd a csúszkát a tiszta adáshoz!]
             </div>
             <input id="fm-slider" type="range" min="880" max="1080" step="2" value="950" oninput="onFmSlide(this.value)" class="w-full accent-amber-500 cursor-pointer" />
             <div class="flex justify-between text-xs font-mono-tech text-amber-500/70">
@@ -845,7 +845,7 @@
 
             <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
               <label class="block font-bold text-amber-300">
-                2. Parno Graszt: Mit jelent magyarul a zenekar neve („Parno Graszt”) lovári nyelven, ami a logójukban is szerepel?
+                2. Parno Graszt: Mit jelent magyarul a zenekar lovári neve („Parno Graszt”), ami a logójukban is szerepel?
               </label>
               <select id="music-q2" class="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-700 text-white">
                 <option value="">-- Válassz jelentést --</option>
@@ -907,7 +907,7 @@
           </button>
         </div>
 
-        <!-- 7/B: ÜNNEPI ÜZENET A KISLÁNYODTÓL + ÉLET-TESZT ÉRTÉKELÉS + LETÖLTHETŐ CERTIFICATE -->
+        <!-- 7/B: ÜNNEPI ÜZENET A KISLÁNYODTÓL + RENDSZERDIAGNOSZTIKA + LETÖLTHETŐ CERTIFICATE -->
         <div id="finale-celebration" class="hidden space-y-4">
           <div class="amber-lcd rounded-2xl p-5 text-center space-y-3 border-2 border-amber-400 relative overflow-hidden">
             <div class="text-3xl">🎂🚐🏍️🚛🐾🍲</div>
@@ -922,7 +922,7 @@
             </p>
           </div>
 
-          <!-- Metaforikus Élet-Teszt Diagnosztika Kártya -->
+          <!-- Rendszerdiagnosztika Kártya -->
           <div class="card-panel rounded-2xl p-4 space-y-2 border border-amber-500/40">
             <div class="flex items-center justify-between">
               <span class="text-xs font-mono-tech text-amber-400 font-bold">📊 RENDSZERDIAGNOSZTIKA</span>
@@ -985,7 +985,7 @@
         <button id="footer-prev-btn" onclick="stepBackChapter()" class="hidden px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-bold transition-all">
           ← Előző
         </button>
-        <span id="footer-stage-name">ÁLLOMÁS: 0 / 6</span>
+        <span id="footer-stage-name">ÁLLOMÁS: NYITÓKÉPERNYŐ</span>
       </div>
       <span class="text-slate-500">KÉSZÍTETTE: A KISLÁNYOD ❤️</span>
     </footer>
@@ -1039,6 +1039,7 @@
 
     // Chapter 2 state
     let bellaPetCount = 0;
+    let ch2p2Solved = false;
     const secretKeySpot = 10; // Öreg diófa
     const gardenSpots16 = [
       "🍒 Cseresznyefa", "🌷 Tulipánok", "🪨 Sziklakert", "🪵 Farakás",
@@ -1113,21 +1114,35 @@
       initBalkanGrid();
       updateChapterNavUI();
 
-      // Secret test parameter for Kislányod: ?teszt=finale or #finale
+      // Refactored test URL parameters (?teszt=finale / ?teszt=all / ?teszt=1..7)
+      // Normal play stays strictly locked against skipping forward.
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('teszt') === 'finale' || window.location.hash === '#finale') {
+      const testMode = urlParams.get('teszt');
+      if (testMode === 'finale' || window.location.hash === '#finale') {
         maxUnlockedChapter = 7;
         for (let i = 0; i < 6; i++) awardShard(i);
-        remainingSeconds = 11 * 60 + 46; // Demo 30p 14mp spent
+        remainingSeconds = 11 * 60 + 46; // Demo: 30p 14mp alatt teljesítve
         goToChapter(7);
         document.getElementById('master-code-input').value = 42;
         unlockFinale();
+      } else if (testMode === 'all') {
+        maxUnlockedChapter = 7;
+        for (let i = 0; i < 6; i++) awardShard(i);
+        startTimer();
+        updateChapterNavUI();
+        document.getElementById('chapter-nav-panel').classList.remove('hidden');
+      } else if (testMode && /^[1-7]$/.test(testMode)) {
+        const targetCh = parseInt(testMode, 10);
+        maxUnlockedChapter = targetCh;
+        for (let i = 0; i < Math.min(targetCh - 1, 6); i++) awardShard(i);
+        startTimer();
+        goToChapter(targetCh);
       }
     });
 
-    function toggleGodMode() {
+    function toggleChapterNav() {
       updateChapterNavUI();
-      document.getElementById('god-mode-panel').classList.toggle('hidden');
+      document.getElementById('chapter-nav-panel').classList.toggle('hidden');
     }
 
     function updateChapterNavUI() {
@@ -1161,6 +1176,7 @@
 
     function trySelectChapter(num) {
       if (num <= maxUnlockedChapter) {
+        document.getElementById('chapter-nav-panel').classList.add('hidden');
         goToChapter(num);
       }
     }
@@ -1270,7 +1286,7 @@
         attempts.ch1p1++;
         recordMistake();
         if (attempts.ch1p1 === 1) {
-          showFeedback('ch1-p1-msg', '❌ A riasztó sípol: ez a kombináció još nem nyitja az ajtót! Gondold át újra a 3 számjegyet!', false);
+          showFeedback('ch1-p1-msg', '❌ A riasztó sípol: ez a kombináció még nem nyitja az ajtót! Gondold át újra a 3 számjegyet!', false);
         } else if (attempts.ch1p1 === 2) {
           let wrongCount = (pin1[0] !== 2 ? 1 : 0) + (pin1[1] !== 5 ? 1 : 0) + (pin1[2] !== 6 ? 1 : 0);
           showFeedback('ch1-p1-msg', `❌ Még mindig zárva! Jelenleg ${wrongCount} számjegy nem stimmel a háromból.`, false);
@@ -1379,6 +1395,7 @@
     }
 
     function selectMechStep(id) {
+      if (mechCurrentStep > 5) return;
       const sock = document.getElementById('socket-select').value;
       if (sock !== '10') {
         attempts.ch1p3++;
@@ -1412,7 +1429,9 @@
     }
 
     function resetMechSteps() {
+      if (mechCurrentStep > 5) return;
       mechCurrentStep = 1;
+      document.getElementById('ch1-p3-msg').classList.add('hidden');
       renderMechSteps();
     }
 
@@ -1485,6 +1504,7 @@
     }
 
     function digGardenSpot(idx) {
+      if (ch2p2Solved) return;
       const barkBox = document.getElementById('bella-bark-box');
       if (bellaPetCount < 3) {
         barkBox.textContent = "🐶 Bella: „Előbb a 3 buksi-simi a fenti gombbal, különben nem árulok el semmit!”";
@@ -1495,6 +1515,7 @@
       const distLabel = document.getElementById(`spot-dist-${idx}`);
 
       if (idx === secretKeySpot) {
+        ch2p2Solved = true;
         btn.className = "p-2 rounded-xl bg-emerald-900 border-2 border-emerald-400 text-xs text-center flex flex-col justify-between min-h-[58px]";
         distLabel.textContent = "🔑 ITT VAN!";
         distLabel.className = "text-xs font-mono-tech text-emerald-200 font-bold mt-1";
@@ -1516,7 +1537,7 @@
         distLabel.className = dist === 1 ? "text-xs font-mono-tech text-rose-400 font-bold mt-1" : "text-xs font-mono-tech text-amber-400 mt-1";
 
         if (dist === 1) {
-          barkBox.textContent = `🔥 FORRÓ! Bella már kaparja a földet: csak 1 szomszédos mezőnyire (fel/le/oldalra) van innen!`;
+          barkBox.textContent = `🔥 FORRÓ! Bella már kaparja a földet: csak 1 szomszédos mezőnyire (fel, le vagy oldalra) van innen!`;
         } else {
           barkBox.textContent = `🐾 Bella szimatol: „Innen pontosan ${dist} mezőnyire (lépésnyire) ástam el!”`;
         }
@@ -1649,6 +1670,7 @@
     }
 
     function selectWashStep(id) {
+      if (washCurrentStep > 5) return;
       if (id === washCurrentStep) {
         washCurrentStep++;
         renderWashSteps();
@@ -1670,7 +1692,9 @@
     }
 
     function resetWashSteps() {
+      if (washCurrentStep > 5) return;
       washCurrentStep = 1;
+      document.getElementById('ch4-p1-msg').classList.add('hidden');
       renderWashSteps();
     }
 
@@ -1783,6 +1807,7 @@
     }
 
     function selectBogracsStep(id) {
+      if (bogracsCurrentStep > 5) return;
       if (id === bogracsCurrentStep) {
         bogracsCurrentStep++;
         renderBogracsSteps();
@@ -1804,7 +1829,9 @@
     }
 
     function resetBogracsSteps() {
+      if (bogracsCurrentStep > 5) return;
       bogracsCurrentStep = 1;
+      document.getElementById('ch5-p2-msg').classList.add('hidden');
       renderBogracsSteps();
     }
 
@@ -1875,7 +1902,7 @@
         rds.className = "text-xs font-mono-tech text-amber-200 text-center bg-black/50 py-2 px-2 rounded border border-amber-800/50";
         state.textContent = "GYENGE JEL";
       } else {
-        rds.textContent = "📻 [KСССШШ... Statikus zaj. Keresd a 98.4 FM-et!]";
+        rds.textContent = "📻 [Kssshhh... Statikus zaj. Keresd a 98.4 FM-et!]";
         rds.className = "text-xs font-mono-tech text-slate-400 text-center bg-black/50 py-2 px-2 rounded border border-slate-800";
         state.textContent = "KERESÉS...";
       }
